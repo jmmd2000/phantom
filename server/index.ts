@@ -1,19 +1,42 @@
 import * as net from "node:net";
 
 const PORT = 3001;
+const server = net.createServer();
 
-const server = net.createServer((socket) => {
-  console.log("Client connected from:", socket.remoteAddress);
+// track active sockets so they can be killed on shutdown
+const activeSockets = new Set<net.Socket>();
 
-  socket.on("end", () => {
-    console.log("Client disconnected");
+server.on("connection", (socket) => {
+  activeSockets.add(socket);
+  console.log("Client connected. Total active:", activeSockets.size);
+
+  socket.on("close", () => {
+    activeSockets.delete(socket);
+    console.log("CLient disconnected. Total active", activeSockets.size);
   });
 
   socket.on("error", (error) => {
     console.error("Socket error:", error.message);
+    activeSockets.delete(socket);
   });
 });
 
 server.listen(PORT, () => {
   console.log(`\x1b[32m[Phantom]\x1b[0m Mock Server listening on port ${PORT}`);
 });
+
+function shutdown() {
+  console.log("\nShutting down Phantom...");
+
+  server.close(() => {
+    console.log("Server stopped");
+    process.exit(0);
+  });
+
+  for (const socket of activeSockets) {
+    socket.destroy();
+  }
+}
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);

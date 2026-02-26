@@ -28,6 +28,7 @@ server.on("connection", (socket) => {
   });
 
   socket.on("error", (error) => {
+    if ("code" in error && error.code === "ECONNRESET") return;
     console.error("Socket error:", error.message);
     activeSockets.delete(socket);
   });

@@ -1,4 +1,5 @@
 import * as net from "node:net";
+import { styleText } from "node:util";
 import { isHeaderComplete } from "./parser.ts";
 
 const PORT = 3001;
@@ -24,7 +25,7 @@ server.on("connection", (socket) => {
 
   socket.on("close", () => {
     activeSockets.delete(socket);
-    console.log("CLient disconnected. Total active", activeSockets.size);
+    console.log("Client disconnected. Total active", activeSockets.size);
   });
 
   socket.on("error", (error) => {
@@ -35,7 +36,21 @@ server.on("connection", (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`\x1b[32m[Phantom]\x1b[0m Mock Server listening on port ${PORT}`);
+  console.clear();
+
+  const name = styleText(["bgCyan", "black", "bold"], " PHANTOM ");
+  const portLabel = styleText("cyan", "port");
+  const envLabel = styleText("cyan", "env");
+  const arrow = styleText("magenta", "→");
+
+  console.log(`
+     ${name} ${styleText("dim", "v0.0.0")}
+
+     ${portLabel}  ${styleText("bold", PORT.toString())}
+     ${envLabel}  ${styleText("bold", "development")}
+
+     ${arrow} ${styleText("bold", "ready")}
+     `);
 });
 
 function shutdown() {

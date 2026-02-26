@@ -1,4 +1,5 @@
 import * as net from "node:net";
+import { isHeaderComplete } from "./parser.ts";
 
 const PORT = 3001;
 const server = net.createServer();
@@ -12,11 +13,10 @@ server.on("connection", (socket) => {
 
   let requestBuffer = Buffer.alloc(0);
 
-  // listen to raw data
   socket.on("data", (chunk: Buffer) => {
     requestBuffer = Buffer.concat([requestBuffer, chunk]);
     console.log(`\x1b[34m[Parser]\x1b[0m Received ${chunk.length} bytes. Total: ${requestBuffer.length}`);
-    if (requestBuffer.includes("\r\n\r\n")) {
+    if (isHeaderComplete(requestBuffer)) {
       console.log("\x1b[34m[Parser]\x1b[0m Headers are complete. Ready to parse!");
       console.log(requestBuffer.toString("utf-8"));
     }

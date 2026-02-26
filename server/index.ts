@@ -10,6 +10,13 @@ server.on("connection", (socket) => {
   activeSockets.add(socket);
   console.log("Client connected. Total active:", activeSockets.size);
 
+  // listen to raw data
+  socket.on("data", (chunk) => {
+    console.log("-- INCOMING DATA ---");
+    console.log(chunk.toString("utf-8"));
+    console.log("--------");
+  });
+
   socket.on("close", () => {
     activeSockets.delete(socket);
     console.log("CLient disconnected. Total active", activeSockets.size);

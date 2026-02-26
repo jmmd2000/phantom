@@ -10,11 +10,16 @@ server.on("connection", (socket) => {
   activeSockets.add(socket);
   console.log("Client connected. Total active:", activeSockets.size);
 
+  let requestBuffer = Buffer.alloc(0);
+
   // listen to raw data
-  socket.on("data", (chunk) => {
-    console.log("-- INCOMING DATA ---");
-    console.log(chunk.toString("utf-8"));
-    console.log("--------");
+  socket.on("data", (chunk: Buffer) => {
+    requestBuffer = Buffer.concat([requestBuffer, chunk]);
+    console.log(`\x1b[34m[Parser]\x1b[0m Received ${chunk.length} bytes. Total: ${requestBuffer.length}`);
+    if (requestBuffer.includes("\r\n\r\n")) {
+      console.log("\x1b[34m[Parser]\x1b[0m Headers are complete. Ready to parse!");
+      console.log(requestBuffer.toString("utf-8"));
+    }
   });
 
   socket.on("close", () => {

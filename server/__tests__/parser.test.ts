@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isHeaderComplete, parseHeaders, parseRequest, parseRequestLine, splitRequest } from "./parser.ts";
+import { isHeaderComplete, parseHeaders, parseRequest, parseRequestLine, splitRequest } from "../parser.ts";
 
 describe("isHeaderComplete", () => {
   it("returns false for incomplete headers", () => {

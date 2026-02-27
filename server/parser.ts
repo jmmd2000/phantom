@@ -73,6 +73,7 @@ export interface MockRequest {
   version: string;
   headers: Record<string, string>;
   body: Buffer;
+  params: Record<string, string>;
 }
 
 /**
@@ -101,6 +102,7 @@ export function parseRequest(buffer: Buffer): MockRequest | null {
     version: requestLine.version,
     headers,
     body,
+    params: {},
   };
 }
 

@@ -38,9 +38,16 @@ server.on("connection", (socket) => {
       const request = parseRequest(requestBuffer);
 
       if (request) {
-        console.log(styleText("green", "[Parser] Request successfully parsed!"));
-        console.log(styleText("bgGreen", `[Router] Matched ${request.method} ${request.path}`));
         const response = handleRouting(request);
+        request.params = response.params;
+
+        const methodColor = request.method === "GET" ? "blue" : "green";
+        console.log(styleText("bold", `\n[Router] `) + styleText(methodColor, request.method) + " " + styleText("white", request.path));
+
+        if (Object.keys(request.params).length > 0) {
+          console.log(styleText("dim", "  params:"), request.params);
+        }
+
         sendResponse(socket, response.status, response.message, response.body);
 
         // clear the buffer so it's ready for the next request

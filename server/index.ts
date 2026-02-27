@@ -1,6 +1,6 @@
 import * as net from "node:net";
 import { styleText } from "node:util";
-import { isHeaderComplete, parseRequest } from "./parser.ts";
+import { isRequestComplete, parseRequest } from "./parser.ts";
 
 const PORT = 3001;
 const server = net.createServer();
@@ -32,7 +32,7 @@ server.on("connection", (socket) => {
     requestBuffer = Buffer.concat([requestBuffer, chunk]);
     console.log(styleText("blue", `[Parser] Received ${chunk.length} bytes. Total: ${requestBuffer.length}`));
 
-    if (isHeaderComplete(requestBuffer)) {
+    if (isRequestComplete(requestBuffer)) {
       const request = parseRequest(requestBuffer);
 
       if (request) {

@@ -86,12 +86,39 @@ export function parseRequest(buffer: Buffer): MockRequest | null {
   if (!requestLine) return null;
 
   const headers = parseHeaders(parts.headers);
+  const contentLengthStr = headers["content-length"];
+
+  let body = parts.body;
+
+  if (contentLengthStr) {
+    const expectedLength = parseInt(contentLengthStr, 10);
+    body = parts.body.subarray(0, expectedLength);
+  }
 
   return {
     method: requestLine.method || "UNKNOWN",
     path: requestLine.path,
     version: requestLine.version,
     headers,
-    body: parts.body,
+    body,
   };
+}
+
+/**
+ * Determines if the entire HTTP request has been received.
+ */
+export function isRequestComplete(buffer: Buffer): boolean {
+  if (!isHeaderComplete(buffer)) return false;
+
+  const parts = splitRequest(buffer);
+  if (!parts) return false;
+
+  const headers = parseHeaders(parts.headers);
+  const contentLength = headers["content-length"];
+
+  // if no content-length header, assume no body
+  if (!contentLength) return true;
+
+  const expectedLength = parseInt(contentLength, 10);
+  return parts.body.length >= expectedLength;
 }

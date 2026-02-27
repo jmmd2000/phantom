@@ -72,4 +72,26 @@ describe("parseRequest", () => {
 
     expect(result?.body.toString()).toBe("Hello World");
   });
+
+  it("handles complex headers and query parameters correctly", () => {
+    const raw = Buffer.from(
+      "GET /api/search?q=phantom&v=1 HTTP/1.1\r\n" +
+        "Host: localhost:3001\r\n" +
+        "User-Agent:  Mozilla/5.0  \r\n" + // Extra spaces
+        "X-Custom-Data: value:with:colons\r\n" + // Colons in value
+        "\r\n"
+    );
+
+    const result = parseRequest(raw);
+
+    expect(result).toMatchObject({
+      method: "GET",
+      path: "/api/search?q=phantom&v=1",
+      headers: {
+        host: "localhost:3001",
+        "user-agent": "Mozilla/5.0",
+        "x-custom-data": "value:with:colons",
+      },
+    });
+  });
 });

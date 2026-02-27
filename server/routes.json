@@ -1,0 +1,12 @@
+[
+  {
+    "path": "/health",
+    "status": 200,
+    "body": { "status": "ok", "service": "phantom" }
+  },
+  {
+    "path": "/users/:id",
+    "status": 200,
+    "body": { "id": "${params.id}", "role": "mock-user" }
+  }
+]

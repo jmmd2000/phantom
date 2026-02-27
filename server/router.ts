@@ -1,18 +1,18 @@
+import { loadRoutes } from "./config.ts";
 import type { MockRequest } from "./parser.ts";
 
 export function handleRouting(request: MockRequest) {
-  const routes = [
-    { path: "/health", response: { response: "All good!" } },
-    { path: "/users/:id", response: (params: any) => ({ id: params.id, role: "mock-user" }) },
-  ];
+  const routes = loadRoutes();
 
   for (const route of routes) {
     const params = matchPath(route.path, request.path);
     if (params) {
-      // If response is a function, call it with params
-      const body = typeof route.response === "function" ? route.response(params) : route.response;
-
-      return { status: 200, message: "OK", body, params };
+      return {
+        status: route.status,
+        message: "OK",
+        body: route.body,
+        params,
+      };
     }
   }
 

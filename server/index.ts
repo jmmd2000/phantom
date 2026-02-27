@@ -1,6 +1,8 @@
 import * as net from "node:net";
 import { styleText } from "node:util";
 import { isRequestComplete, parseRequest } from "./parser.ts";
+import { sendResponse } from "./responder.ts";
+import { handleRouting } from "./router.ts";
 
 const PORT = 3001;
 const server = net.createServer();
@@ -37,7 +39,9 @@ server.on("connection", (socket) => {
 
       if (request) {
         console.log(styleText("green", "[Parser] Request successfully parsed!"));
-        console.log(request);
+        console.log(styleText("bgGreen", `[Router] Matched ${request.method} ${request.path}`));
+        const response = handleRouting(request);
+        sendResponse(socket, response.status, response.message, response.body);
 
         // clear the buffer so it's ready for the next request
         requestBuffer = Buffer.alloc(0);

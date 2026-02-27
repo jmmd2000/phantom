@@ -86,12 +86,12 @@ export function parseRequest(buffer: Buffer): MockRequest | null {
   if (!requestLine) return null;
 
   const headers = parseHeaders(parts.headers);
-  const contentLengthStr = headers["content-length"];
+  const contentLengthString = headers["content-length"];
 
   let body = parts.body;
 
-  if (contentLengthStr) {
-    const expectedLength = parseInt(contentLengthStr, 10);
+  if (contentLengthString) {
+    const expectedLength = parseInt(contentLengthString, 10);
     body = parts.body.subarray(0, expectedLength);
   }
 

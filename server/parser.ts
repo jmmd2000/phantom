@@ -37,3 +37,28 @@ export function parseRequestLine(headerString: string) {
     version,
   };
 }
+
+/**
+ * Parses HTTP headers into a key-value Record.
+ */
+export function parseHeaders(headerString: string) {
+  const headers: Record<string, string> = {};
+  const lines = headerString.split("\r\n");
+
+  // skip first line
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line) continue;
+
+    const colonIndex = line.indexOf(":");
+    if (colonIndex === -1) continue;
+
+    const key = line.slice(0, colonIndex).trim().toLowerCase();
+    const value = line.slice(colonIndex + 1).trim();
+
+    if (key) {
+      headers[key] = value;
+    }
+  }
+  return headers;
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isHeaderComplete, splitRequest } from "./parser.ts";
+import { isHeaderComplete, parseRequestLine, splitRequest } from "./parser.ts";
 
 describe("isHeaderComplete", () => {
   it("returns false for incomplete headers", () => {
@@ -24,5 +24,21 @@ describe("splitRequest", () => {
     const result = splitRequest(buffer);
     expect(result?.headers).toBe("HEADERS");
     expect(result?.body.toString()).toBe("BODY_CONTENT");
+  });
+});
+
+describe("parseRequestLine", () => {
+  it("returns structured data for a valid request line", () => {
+    const line = "GET /api/test HTTP/1.1\r\nHost: localhost";
+    const result = parseRequestLine(line);
+    expect(result).toEqual({
+      method: "GET",
+      path: "/api/test",
+      version: "HTTP/1.1",
+    });
+  });
+
+  it("returns null for a malformed request line", () => {
+    expect(parseRequestLine("NOT_VALID_HTTP")).toBe(null);
   });
 });

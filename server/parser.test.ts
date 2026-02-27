@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isHeaderComplete, parseHeaders, parseRequestLine, splitRequest } from "./parser.ts";
+import { isHeaderComplete, parseHeaders, parseRequest, parseRequestLine, splitRequest } from "./parser.ts";
 
 describe("isHeaderComplete", () => {
   it("returns false for incomplete headers", () => {
@@ -51,5 +51,25 @@ describe("parseHeaders", () => {
       host: "localhost",
       "content-type": "application/json",
     });
+  });
+});
+
+describe("parseRequest", () => {
+  it("returns a full MockRequest object for a valid stream", () => {
+    const raw = Buffer.from("POST /api/users HTTP/1.1\r\n" + "Host: localhost\r\n" + "Content-Type: text/plain\r\n" + "\r\n" + "Hello World");
+
+    const result = parseRequest(raw);
+
+    expect(result).toMatchObject({
+      method: "POST",
+      path: "/api/users",
+      version: "HTTP/1.1",
+      headers: {
+        host: "localhost",
+        "content-type": "text/plain",
+      },
+    });
+
+    expect(result?.body.toString()).toBe("Hello World");
   });
 });

@@ -5,12 +5,25 @@ import { isHeaderComplete, splitRequest } from "./parser.ts";
 const PORT = 3001;
 const server = net.createServer();
 
-// track active sockets so they can be killed on shutdown
-const activeSockets = new Set<net.Socket>();
+const socketManager = {
+  active: new Set<net.Socket>(),
+  add(socket: net.Socket) {
+    this.active.add(socket);
+    console.log(styleText("dim", `Client connected. Total active: ${this.active.size}`));
+  },
+  remove(socket: net.Socket) {
+    this.active.delete(socket);
+    console.log(styleText("dim", `Client disconnected. Total active: ${this.active.size}`));
+  },
+  destroyAll() {
+    for (const socket of this.active) {
+      socket.destroy();
+    }
+  },
+};
 
 server.on("connection", (socket) => {
-  activeSockets.add(socket);
-  console.log(styleText("dim", `Client connected. Total active: ${activeSockets.size}`));
+  socketManager.add(socket);
 
   let requestBuffer: Buffer = Buffer.alloc(0);
 
@@ -34,14 +47,13 @@ server.on("connection", (socket) => {
   });
 
   socket.on("close", () => {
-    activeSockets.delete(socket);
-    console.log(styleText("dim", `Client disconnected. Total active: ${activeSockets.size}`));
+    socketManager.remove(socket);
   });
 
   socket.on("error", (error) => {
     if ("code" in error && error.code === "ECONNRESET") return;
     console.error(styleText("red", `Socket error: ${error.message}`));
-    activeSockets.delete(socket);
+    socketManager.remove(socket);
   });
 });
 
@@ -71,9 +83,7 @@ function shutdown() {
     process.exit(0);
   });
 
-  for (const socket of activeSockets) {
-    socket.destroy();
-  }
+  socketManager.destroyAll();
 }
 
 process.on("SIGINT", shutdown);

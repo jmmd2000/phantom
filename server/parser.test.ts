@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isHeaderComplete, parseRequestLine, splitRequest } from "./parser.ts";
+import { isHeaderComplete, parseHeaders, parseRequestLine, splitRequest } from "./parser.ts";
 
 describe("isHeaderComplete", () => {
   it("returns false for incomplete headers", () => {
@@ -40,5 +40,16 @@ describe("parseRequestLine", () => {
 
   it("returns null for a malformed request line", () => {
     expect(parseRequestLine("NOT_VALID_HTTP")).toBe(null);
+  });
+});
+
+describe("parseHeaders", () => {
+  it("parses multiple headers into a record", () => {
+    const raw = "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Type: application/json";
+    const result = parseHeaders(raw);
+    expect(result).toEqual({
+      host: "localhost",
+      "content-type": "application/json",
+    });
   });
 });

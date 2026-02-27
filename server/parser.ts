@@ -31,8 +31,12 @@ export function parseRequestLine(headerString: string) {
 
   const [method, path, version] = parts;
 
+  if (!method || !path || !version) {
+    return null;
+  }
+
   return {
-    method,
+    method: method.toUpperCase(),
     path,
     version,
   };
@@ -61,4 +65,33 @@ export function parseHeaders(headerString: string) {
     }
   }
   return headers;
+}
+
+export interface MockRequest {
+  method: string;
+  path: string;
+  version: string;
+  headers: Record<string, string>;
+  body: Buffer;
+}
+
+/**
+ * Parses a raw TCP byte stream into a structured HTTP request object
+ */
+export function parseRequest(buffer: Buffer): MockRequest | null {
+  const parts = splitRequest(buffer);
+  if (!parts) return null;
+
+  const requestLine = parseRequestLine(parts.headers);
+  if (!requestLine) return null;
+
+  const headers = parseHeaders(parts.headers);
+
+  return {
+    method: requestLine.method || "UNKNOWN",
+    path: requestLine.path,
+    version: requestLine.version,
+    headers,
+    body: parts.body,
+  };
 }

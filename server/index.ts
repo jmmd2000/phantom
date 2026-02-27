@@ -1,6 +1,6 @@
 import * as net from "node:net";
 import { styleText } from "node:util";
-import { isHeaderComplete, splitRequest } from "./parser.ts";
+import { isHeaderComplete, parseRequest } from "./parser.ts";
 
 const PORT = 3001;
 const server = net.createServer();
@@ -33,15 +33,14 @@ server.on("connection", (socket) => {
     console.log(styleText("blue", `[Parser] Received ${chunk.length} bytes. Total: ${requestBuffer.length}`));
 
     if (isHeaderComplete(requestBuffer)) {
-      const parts = splitRequest(requestBuffer);
+      const request = parseRequest(requestBuffer);
 
-      if (parts) {
-        console.log(styleText("green", "[Parser] Headers are complete. Ready to parse!"));
-        console.log("\n" + styleText("bold", "--- HEADERS ---"));
-        console.log(parts.headers); // Only show the headers string
-        console.log(styleText("bold", "--- BODY ---"));
-        console.log(parts.body.toString("utf-8") || "(empty)");
-        console.log(styleText("bold", "--------------------") + "\n");
+      if (request) {
+        console.log(styleText("green", "[Parser] Request successfully parsed!"));
+        console.log(request);
+
+        // clear the buffer so it's ready for the next request
+        requestBuffer = Buffer.alloc(0);
       }
     }
   });

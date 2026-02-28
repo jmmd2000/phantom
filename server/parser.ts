@@ -124,3 +124,13 @@ export function isRequestComplete(buffer: Buffer): boolean {
   const expectedLength = parseInt(contentLength, 10);
   return parts.body.length >= expectedLength;
 }
+
+/**
+ * Checks if the request headers indicate a WebSocket upgrade attempt.
+ */
+export function isWebSocketUpgrade(headers: Record<string, string>): boolean {
+  const upgrade = headers["upgrade"]?.toLowerCase();
+  const connection = headers["connection"]?.toLowerCase();
+
+  return upgrade === "websocket" && connection?.includes("upgrade") === true;
+}

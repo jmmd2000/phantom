@@ -3,6 +3,7 @@ import { styleText } from "node:util";
 import { isRequestComplete, parseRequest } from "./parser.ts";
 import { sendResponse } from "./responder.ts";
 import { handleRouting } from "./router.ts";
+import { watchConfig } from "./config.ts";
 
 const PORT = 3001;
 const server = net.createServer();
@@ -66,6 +67,8 @@ server.on("connection", (socket) => {
     socketManager.remove(socket);
   });
 });
+
+watchConfig();
 
 server.listen(PORT, () => {
   console.clear();

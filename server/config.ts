@@ -10,19 +10,41 @@ export interface RouteConfig {
   body: any;
 }
 
-export function loadRoutes(): RouteConfig[] {
+let activeRoutes: RouteConfig[] = [];
+
+export function getActiveRoutes() {
+  return activeRoutes;
+}
+
+export function reloadRoutes() {
   try {
     if (!fs.existsSync(CONFIG_PATH)) {
-      console.log(styleText("yellow", "[Config] routes.json not found. using empty defaults."));
-      return [];
+      activeRoutes = [];
+      return;
     }
 
     const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
-    const routes = JSON.parse(raw);
-    console.log(styleText("blue", `[Config] Loaded ${routes.length} routes from JSON`));
-    return routes;
+    activeRoutes = JSON.parse(raw);
+    console.log(styleText("blue", `[Config] Successfully reloaded ${activeRoutes.length} routes`));
   } catch (error) {
-    console.error(styleText("red", "[Config] Failed to parse routes.json"));
-    return [];
+    console.error(styleText("red", "[Config] Error reloading routes.json. Keeping previous version."));
   }
 }
+
+let watchTimeout: NodeJS.Timeout | null = null;
+
+export function watchConfig() {
+  fs.watch(CONFIG_PATH, (eventType) => {
+    if (eventType === "change") {
+      // editors could run multiple "change" events, debounce them
+      if (watchTimeout) clearTimeout(watchTimeout);
+
+      watchTimeout = setTimeout(() => {
+        reloadRoutes();
+        watchTimeout = null;
+      }, 100);
+    }
+  });
+}
+
+reloadRoutes();

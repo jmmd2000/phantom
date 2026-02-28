@@ -1,8 +1,8 @@
-import { loadRoutes } from "./config.ts";
+import { getActiveRoutes } from "./config.ts";
 import type { MockRequest } from "./parser.ts";
 
 export function handleRouting(request: MockRequest) {
-  const routes = loadRoutes();
+  const routes = getActiveRoutes();
 
   for (const route of routes) {
     const params = matchPath(route.path, request.path);

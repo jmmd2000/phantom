@@ -28,3 +28,41 @@ export function handleWebSocketHandshake(socket: Socket, request: MockRequest) {
 
   socket.write(response);
 }
+
+/**
+ * Wraps a string in a WebSocket text frame (RFC 6455).
+ */
+export function encodeWsFrame(dataString: string): Buffer {
+  const payload = Buffer.from(dataString, "utf-8");
+  const length = payload.length;
+
+  let header: Buffer;
+
+  if (length <= 125) {
+    header = Buffer.alloc(2);
+    header[0] = 0x81; // 10000001
+    header[1] = length;
+  } else if (length <= 65535) {
+    header = Buffer.alloc(4);
+    header[0] = 0x81;
+    header[1] = 126;
+    header.writeUInt16BE(length, 2);
+  } else {
+    header = Buffer.alloc(10);
+    header[0] = 0x81;
+    header[1] = 127;
+    header.writeBigUInt64BE(BigInt(length), 2);
+  }
+
+  return Buffer.concat([header, payload]);
+}
+
+/**
+ * Broadcasts a message to all connected WebSocket clients.
+ */
+export function broadcast(clients: Map<string, Socket>, message: any) {
+  const frame = encodeWsFrame(JSON.stringify(message));
+  for (const socket of clients.values()) {
+    socket.write(frame);
+  }
+}

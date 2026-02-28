@@ -1,10 +1,11 @@
 import * as net from "node:net";
 import { styleText } from "node:util";
+import crypto from "node:crypto";
 import { isRequestComplete, isWebSocketUpgrade, parseRequest } from "./parser.ts";
 import { sendResponse } from "./responder.ts";
 import { handleRouting } from "./router.ts";
 import { watchConfig } from "./config.ts";
-import { handleWebSocketHandshake } from "./ws.ts";
+import { broadcast, handleWebSocketHandshake } from "./ws.ts";
 
 const PORT = 3001;
 const server = net.createServer();
@@ -62,6 +63,14 @@ server.on("connection", (socket) => {
           }
 
           sendResponse(socket, response.status, response.message, response.body);
+
+          broadcast(wsClients, {
+            id: crypto.randomUUID(),
+            method: request.method,
+            path: request.path,
+            status: response.status,
+            timestamp: Date.now(),
+          });
         }
 
         requestBuffer = Buffer.alloc(0);

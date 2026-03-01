@@ -1,0 +1,28 @@
+:root {
+  --bg-main: #0f172a;
+  --bg-sidebar: #1e293b;
+  --border-color: #334155;
+  --color-cyan: #22d3ee;
+  --color-magenta: #d946ef;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}

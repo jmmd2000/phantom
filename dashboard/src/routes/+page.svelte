@@ -3,16 +3,21 @@
   import { connectToServer, requestLog, isConnected } from "$lib/ws";
   import StatusIndicator from "$lib/components/StatusIndicator.svelte";
   import LogEntry from "$lib/components/LogEntry.svelte";
+  import SearchInput from "$lib/components/SearchInput.svelte";
 
   onMount(() => {
     connectToServer();
   });
 
-  function getStatusClass(status: number) {
-    if (status >= 500) return "status-error";
-    if (status >= 400) return "status-warn";
-    return "status-success";
-  }
+  let searchTerm = $state("");
+
+  let filteredLogs = $derived(
+    $requestLog.filter(
+      (log) =>
+        log.path.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.method.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
 
   async function clearLogs() {
     await fetch("http://localhost:3001/_admin/clear", { method: "POST" });
@@ -29,21 +34,26 @@
   <div class="header-left">
     <h2>Request Feed</h2>
     <StatusIndicator online={$isConnected} />
-  </div>
 
-  {#if $requestLog.length > 0}
-    <button class="clear-button" onclick={clearLogs}>Clear Logs</button>
-  {/if}
+    {#if $requestLog.length > 0}
+      <div class="header-controls">
+        <SearchInput bind:value={searchTerm} />
+        <button class="clear-button" onclick={clearLogs}>Clear Logs</button>
+      </div>
+    {/if}
+  </div>
 </div>
 
-{#if $requestLog.length === 0}
+{#if filteredLogs.length === 0}
   <div class="empty">
-    <p>No activity yet...</p>
-    <code>curl http://localhost:3001/health</code>
+    <p>{searchTerm ? "No requests match your search." : "No activity yet..."}</p>
+    {#if !searchTerm}
+      <code>curl http://localhost:3001/health</code>
+    {/if}
   </div>
 {:else}
   <div class="log-feed">
-    {#each $requestLog as log (log.id)}
+    {#each filteredLogs as log (log.id)}
       <LogEntry {log} onCopy={copyToClipboard} />
     {/each}
   </div>
@@ -52,15 +62,22 @@
 <style>
   .page-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: start;
     align-items: flex-end;
-    margin-bottom: 1.75rem;
+    margin-bottom: 2rem;
   }
 
   .header-left {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 1rem;
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
   }
 
   h2 {
@@ -73,7 +90,7 @@
   .log-feed {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.2rem;
     padding-bottom: 2rem;
   }
 
@@ -104,7 +121,7 @@
 
   .clear-button {
     background: transparent;
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
     color: var(--text-secondary);
     padding: 0.4rem 0.85rem;
     border-radius: 4px;
@@ -115,7 +132,8 @@
 
     &:hover {
       border-color: var(--accent);
-      color: var(--accent);
+      color: var(--text-sidebar);
+      background-color: var(--accent);
     }
   }
 </style>

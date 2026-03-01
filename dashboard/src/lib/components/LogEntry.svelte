@@ -25,7 +25,7 @@
   .log-entry {
     background-color: var(--bg-surface);
     padding: 0.75rem 1.25rem;
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
     border-radius: 6px;
     display: flex;
     align-items: center;
@@ -88,7 +88,7 @@
 
   .copy-button {
     background: transparent;
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
     color: var(--text-secondary);
     padding: 0.15rem 0.5rem;
     cursor: pointer;
@@ -101,7 +101,8 @@
 
     &:hover {
       border-color: var(--accent);
-      color: var(--accent);
+      color: var(--text-sidebar);
+      background-color: var(--accent);
     }
   }
 

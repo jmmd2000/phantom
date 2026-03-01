@@ -2,6 +2,10 @@ import { getActiveRoutes, type RouteConfig } from "./config.ts";
 import type { MockRequest } from "./parser.ts";
 
 export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]) {
+  if (request.path === "/_admin/routes" && request.method === "GET") {
+    return { status: 200, message: "OK", body: getActiveRoutes(), params: {} };
+  }
+
   const routes = customRoutes || getActiveRoutes();
 
   for (const route of routes) {

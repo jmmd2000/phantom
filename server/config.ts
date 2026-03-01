@@ -33,7 +33,7 @@ export function reloadRoutes() {
 
 let watchTimeout: NodeJS.Timeout | null = null;
 
-export function watchConfig() {
+export function watchConfig(onReload: () => void) {
   fs.watch(CONFIG_PATH, (eventType) => {
     if (eventType === "change") {
       // editors could run multiple "change" events, debounce them
@@ -41,6 +41,7 @@ export function watchConfig() {
 
       watchTimeout = setTimeout(() => {
         reloadRoutes();
+        onReload();
         watchTimeout = null;
       }, 100);
     }

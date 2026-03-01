@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { fetchMockRoutes } from "./routes";
 
 export const requestLog = writable<any[]>([]);
 
@@ -25,6 +26,11 @@ export function connectToServer() {
       if (data.type === "HISTORY") {
         // reverse to keep the newest on top
         requestLog.set(data.data.reverse());
+        return;
+      }
+
+      if (data.type === "CONFIG_UPDATED") {
+        fetchMockRoutes();
         return;
       }
 

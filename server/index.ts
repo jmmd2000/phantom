@@ -114,7 +114,9 @@ server.on("connection", (socket) => {
   });
 });
 
-watchConfig();
+watchConfig(() => {
+  broadcast(wsClients, { type: "CONFIG_UPDATED" });
+});
 startHeartbeat(wsClients);
 
 server.listen(PORT, () => {

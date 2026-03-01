@@ -1,0 +1,42 @@
+import { writable } from "svelte/store";
+
+export const requestLog = writable<any[]>([]);
+
+let socket: WebSocket | null = null;
+
+export function connectToServer() {
+  if (socket) return;
+
+  socket = new WebSocket("ws://localhost:3001");
+
+  socket.onopen = () => {
+    console.log("[Phantom] Connected to live stream");
+  };
+
+  socket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "PING") return;
+
+      requestLog.update((logs) => {
+        const updated = [data, ...logs];
+
+        return updated.slice(0, 1000);
+      });
+    } catch (err) {
+      console.error("Failed to parse Websocket message:", err);
+    }
+  };
+
+  socket.onclose = () => {
+    console.log("[Phantom] Connection lost. Retrying in 3s...");
+    socket = null;
+    setTimeout(connectToServer, 3000);
+  };
+
+  socket.onerror = (err) => {
+    console.error("WebSocket error:", err);
+    socket?.close();
+  };
+}

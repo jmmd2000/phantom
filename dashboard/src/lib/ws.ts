@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { fetchMockRoutes } from "./routes";
+import { fetchMockRoutes } from "./routes.svelte";
 
 export const requestLog = writable<any[]>([]);
 

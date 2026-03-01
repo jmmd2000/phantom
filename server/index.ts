@@ -2,7 +2,7 @@ import * as net from "node:net";
 import { styleText } from "node:util";
 import crypto from "node:crypto";
 import { isRequestComplete, isWebSocketUpgrade, parseRequest } from "./parser.ts";
-import { sendResponse } from "./responder.ts";
+import { sendCorsPreflightResponse, sendResponse } from "./responder.ts";
 import { handleRouting } from "./router.ts";
 import { watchConfig } from "./config.ts";
 import { broadcast, encodeWsFrame, handleWebSocketHandshake, startHeartbeat } from "./ws.ts";
@@ -48,6 +48,13 @@ server.on("connection", (socket) => {
       const request = parseRequest(requestBuffer);
 
       if (request) {
+        if (request.method === "OPTIONS") {
+          console.log(styleText("dim", `[CORS] Preflight ${request.path}`));
+          sendCorsPreflightResponse(socket);
+          requestBuffer = Buffer.alloc(0);
+          return;
+        }
+
         if (isWebSocketUpgrade(request.headers)) {
           console.log(styleText(["magenta", "bold"], "[WebSocket] Handshake successful"));
           handleWebSocketHandshake(socket, request);

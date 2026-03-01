@@ -1,9 +1,14 @@
 <script lang="ts">
-  import { fetchMockRoutes, mockRoutes } from "$lib/routes";
+  import type { Snippet } from "svelte";
+  import { fetchMockRoutes, mockRoutes } from "$lib/routes.svelte";
   import { onMount } from "svelte";
   import PhantomLogo from "$lib/components/PhantomLogo.svelte";
   import "../app.css";
   import RouteCard from "$lib/components/RouteCard.svelte";
+  import RouteDialog from "$lib/components/RouteDialog.svelte";
+
+  let { children }: { children: Snippet } = $props();
+  let selectedRouteIndex = $state<number | null>(null);
 
   onMount(() => {
     fetchMockRoutes();
@@ -25,17 +30,21 @@
     <nav class="sidebar-nav">
       <div class="nav-header">MOCK ROUTES</div>
       <div class="route-list">
-        {#each $mockRoutes as route}
-          <RouteCard {...route} />
+        {#each mockRoutes.items as route, i}
+          <RouteCard {route} index={i} onopen={() => (selectedRouteIndex = i)} />
         {/each}
       </div>
     </nav>
   </aside>
 
   <main class="content">
-    <slot />
+    {@render children()}
   </main>
 </div>
+
+{#if selectedRouteIndex !== null}
+  <RouteDialog index={selectedRouteIndex} onclose={() => (selectedRouteIndex = null)} />
+{/if}
 
 <style>
   .app-layout {

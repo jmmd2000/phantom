@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/health",
+    "method": "GET",
+    "status": 200,
+    "body": { "status": "ok", "service": "phantom" },
+    "enabled": true,
+    "delay": 0
+  },
+  {
+    "path": "/users/:id",
+    "method": "GET",
+    "status": 200,
+    "body": { "id": "${params.id}", "role": "mock-user" },
+    "enabled": true,
+    "delay": 0
+  }
+]

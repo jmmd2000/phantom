@@ -6,8 +6,11 @@ const CONFIG_PATH = path.join(process.cwd(), "routes.json");
 
 export interface RouteConfig {
   path: string;
+  method: string;
   status: number;
   body: any;
+  enabled: boolean;
+  delay: number;
 }
 
 let activeRoutes: RouteConfig[] = [];
@@ -46,6 +49,11 @@ export function watchConfig(onReload: () => void) {
       }, 100);
     }
   });
+}
+
+export function writeRoutes(routes: RouteConfig[]) {
+  fs.writeFileSync(CONFIG_PATH, JSON.stringify(routes, null, 2), "utf-8");
+  console.log(styleText("blue", `[Config] Wrote ${routes.length} routes to disk`));
 }
 
 reloadRoutes();

@@ -1,7 +1,9 @@
 <script lang="ts">
   import { fetchMockRoutes, mockRoutes } from "$lib/routes";
   import { onMount } from "svelte";
+  import PhantomLogo from "$lib/components/PhantomLogo.svelte";
   import "../app.css";
+  import RouteCard from "$lib/components/RouteCard.svelte";
 
   onMount(() => {
     fetchMockRoutes();
@@ -11,20 +13,20 @@
 <div class="app-layout">
   <aside class="sidebar">
     <div class="logo-area">
-      <span class="logo-box">PHANTOM</span>
-      <span class="version">v0.0.0</span>
+      <span class="logo">
+        <PhantomLogo size={36} />
+      </span>
+      <div class="logo-text">
+        <span class="logo-name">PHANTOM</span>
+        <span class="version">v0.0.0</span>
+      </div>
     </div>
+    <div class="sidebar-divider"></div>
     <nav class="sidebar-nav">
       <div class="nav-header">MOCK ROUTES</div>
       <div class="route-list">
         {#each $mockRoutes as route}
-          <div class="route-card">
-            <span class="route-path">{route.path}</span>
-            <div class="route-info">
-              <span>status: <span class="status-tag">{route.status}</span></span>
-              <span>{route.method || "GET"}</span>
-            </div>
-          </div>
+          <RouteCard {...route} />
         {/each}
       </div>
     </nav>
@@ -46,7 +48,7 @@
 
   .sidebar {
     background-color: var(--bg-sidebar);
-    border-right: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-sidebar);
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
@@ -58,22 +60,40 @@
   .logo-area {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.65rem;
     flex-shrink: 0;
   }
 
-  .logo-box {
-    background-color: var(--color-cyan);
-    color: #000;
-    padding: 0.25rem 0.5rem;
+  .logo {
+    flex-shrink: 0;
+    color: var(--accent-light);
+    display: flex;
+    align-items: center;
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .logo-name {
+    color: var(--text-sidebar);
     font-weight: 800;
-    font-size: 0.875rem;
-    letter-spacing: 0.05em;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
   }
 
   .version {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
+    font-size: 0.65rem;
+    color: var(--text-sidebar-muted);
+  }
+
+  .sidebar-divider {
+    height: 1px;
+    background: linear-gradient(to right, var(--accent-light), transparent);
+    flex-shrink: 0;
+    margin: -0.5rem 0;
   }
 
   .sidebar-nav {
@@ -84,11 +104,11 @@
   }
 
   .nav-header {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #64748b;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-sidebar-muted);
     letter-spacing: 0.1em;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     flex-shrink: 0;
   }
 
@@ -97,54 +117,15 @@
     height: 100vh;
     padding: 2rem;
     min-width: 0;
+    scrollbar-color: var(--accent-light) transparent;
   }
 
   .route-list {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.4rem;
     overflow-y: auto;
     flex: 1;
     padding-right: 0.5rem;
-  }
-
-  .route-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-color);
-    padding: 0.75rem 1rem;
-    border-radius: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: var(--color-cyan);
-    }
-  }
-
-  .route-path {
-    color: var(--color-cyan);
-    font-family: ui-monospace, monospace;
-    font-size: 0.85rem;
-    font-weight: 600;
-    word-break: break-all;
-  }
-
-  .route-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-  }
-
-  .status-tag {
-    font-weight: bold;
-    color: var(--text-primary);
-    background: var(--border-color);
-    padding: 0.1rem 0.4rem;
-    border-radius: 3px;
   }
 </style>

@@ -1,11 +1,27 @@
 :root {
-  --bg-main: #0f172a;
-  --bg-sidebar: #1e293b;
-  --border-color: #334155;
-  --color-cyan: #22d3ee;
-  --color-magenta: #d946ef;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --bg-main: #f7f6f4;
+  --bg-surface: #ffffff;
+  --bg-sidebar: #2a2320;
+  --bg-sidebar-surface: #362e2a;
+  --border-color: #e2ddd8;
+  --border-sidebar: rgba(255, 255, 255, 0.1);
+  --accent: #5e4d8a;
+  --accent-light: #7a6aab;
+  --accent-subtle: rgba(94, 77, 138, 0.08);
+  --text-primary: #2c2825;
+  --text-secondary: #8a8078;
+  --text-sidebar: #f5f3ef;
+  --text-sidebar-muted: rgba(245, 245, 240, 0.5);
+
+  --status-success: #16a34a;
+  --status-error: #dc2626;
+  --status-warning: #eab308;
+
+  --method-get: #5ba4cf;
+  --method-post: #8b5cf6;
+  --method-put: #c46b1a;
+  --method-patch: #f4845f;
+  --method-delete: #a03030;
 }
 
 body,
@@ -14,12 +30,11 @@ html {
   padding: 0;
   height: 100%;
   background-color: var(--bg-main);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
   color: var(--text-primary);
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: "DM Sans", sans-serif;
   overflow: hidden;
 }
 

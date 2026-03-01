@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { fly } from "svelte/transition";
   import { connectToServer, requestLog, isConnected } from "$lib/ws";
 
   onMount(() => {
@@ -33,7 +34,7 @@
   </div>
 
   {#if $requestLog.length > 0}
-    <button class="clear-button" on:click={clearLogs}> Clear Logs </button>
+    <button class="clear-button" onclick={clearLogs}> Clear Logs </button>
   {/if}
 </div>
 
@@ -45,15 +46,14 @@
 {:else}
   <div class="log-feed">
     {#each $requestLog as log (log.id)}
-      <div class="log-entry {log.status >= 400 ? 'entry-fail' : ''}">
+      <div
+        class="log-entry {log.status >= 400 ? 'entry-fail' : ''}"
+        in:fly={{ y: -10, duration: 200 }}
+      >
         <span class="method method-{log.method.toLowerCase()}">{log.method}</span>
         <span class="path">{log.path}</span>
-        <button
-          class="copy-button"
-          on:click={() => copyToClipboard(log.path)}
-          title="Copy URL"
-        >
-          <span>Copy URL</span>
+        <button class="copy-button" onclick={() => copyToClipboard(log.path)} title="Copy URL">
+          <span>Copy</span>
         </button>
         <span class="status {getStatusClass(log.status)}">{log.status}</span>
         <span class="time">{new Date(log.timestamp).toLocaleTimeString()}</span>
@@ -98,6 +98,13 @@
     }
   }
 
+  .log-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-bottom: 2rem;
+  }
+
   .log-entry {
     background-color: var(--bg-sidebar);
     padding: 0.75rem 1.25rem;
@@ -108,7 +115,7 @@
     gap: 1.5rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.9rem;
-    transition: transform 0.1s ease;
+    transition: all 0.1s ease;
     min-width: 0;
 
     &:hover {
@@ -137,7 +144,6 @@
     flex-shrink: 0;
   }
 
-  /* Color coding methods */
   .method-get {
     color: #60a5fa;
     border: 1px solid #1e40af;
@@ -168,6 +174,7 @@
     font-weight: bold;
     flex-shrink: 0;
   }
+
   .status-success {
     color: #4ade80;
   }

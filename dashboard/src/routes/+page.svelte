@@ -16,6 +16,11 @@
     await fetch("http://localhost:3001/_admin/clear", { method: "POST" });
     requestLog.set([]);
   }
+
+  async function copyToClipboard(path: string) {
+    const fullUrl = `http://localhost:3001${path}`;
+    await navigator.clipboard.writeText(fullUrl);
+  }
 </script>
 
 <div class="page-header">
@@ -41,6 +46,13 @@
       <div class="log-entry {log.status >= 400 ? 'entry-fail' : ''}">
         <span class="method method-{log.method.toLowerCase()}">{log.method}</span>
         <span class="path">{log.path}</span>
+        <button
+          class="copy-button"
+          on:click={() => copyToClipboard(log.path)}
+          title="Copy URL"
+        >
+          <span>Copy URL</span>
+        </button>
         <span class="status {getStatusClass(log.status)}">{log.status}</span>
         <span class="time">{new Date(log.timestamp).toLocaleTimeString()}</span>
       </div>
@@ -88,6 +100,10 @@
       border-color: var(--color-cyan);
       cursor: pointer;
     }
+
+    &:hover .copy-button {
+      opacity: 1;
+    }
   }
 
   .entry-fail {
@@ -124,7 +140,6 @@
   }
 
   .path {
-    flex: 1;
     color: #e2e8f0;
     white-space: nowrap;
     overflow: hidden;
@@ -132,6 +147,7 @@
   }
 
   .status {
+    margin-left: auto;
     font-weight: bold;
   }
   .status-success {
@@ -187,6 +203,24 @@
     &:hover {
       border-color: var(--text-secondary);
       color: var(--text-primary);
+    }
+  }
+
+  .copy-button {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--color-cyan);
     }
   }
 </style>

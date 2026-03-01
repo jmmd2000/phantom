@@ -14,7 +14,7 @@
       <span class="logo-box">PHANTOM</span>
       <span class="version">v0.0.0</span>
     </div>
-    <nav>
+    <nav class="sidebar-nav">
       <div class="nav-header">MOCK ROUTES</div>
       <div class="route-list">
         {#each $mockRoutes as route}
@@ -41,6 +41,7 @@
     grid-template-columns: 280px 1fr;
     height: 100vh;
     width: 100vw;
+    overflow: hidden;
   }
 
   .sidebar {
@@ -50,12 +51,15 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    height: 100vh;
+    overflow: hidden;
   }
 
   .logo-area {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    flex-shrink: 0;
   }
 
   .logo-box {
@@ -72,24 +76,36 @@
     color: var(--text-secondary);
   }
 
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 1;
+  }
+
   .nav-header {
     font-size: 0.75rem;
     font-weight: 700;
     color: #64748b;
     letter-spacing: 0.1em;
     margin-bottom: 1rem;
+    flex-shrink: 0;
   }
 
   .content {
     overflow-y: auto;
+    height: 100vh;
     padding: 2rem;
+    min-width: 0;
   }
 
   .route-list {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    margin-top: 0.5rem;
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 0.5rem;
   }
 
   .route-card {
@@ -113,7 +129,7 @@
     font-family: ui-monospace, monospace;
     font-size: 0.85rem;
     font-weight: 600;
-    word-break: break-all; /* Prevents overflow for long paths */
+    word-break: break-all;
   }
 
   .route-info {

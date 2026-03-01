@@ -24,10 +24,12 @@
 </script>
 
 <div class="page-header">
-  <h2>Request Feed</h2>
-  <div class="status-indicator">
-    <span class="dot" class:online={$isConnected}></span>
-    {$isConnected ? "Dashboard active" : "Connecting to server..."}
+  <div class="header-left">
+    <h2>Request Feed</h2>
+    <div class="status-indicator">
+      <span class="dot" class:online={$isConnected}></span>
+      {$isConnected ? "Dashboard active" : "Connecting to server..."}
+    </div>
   </div>
 
   {#if $requestLog.length > 0}
@@ -63,10 +65,15 @@
 <style>
   .page-header {
     display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: start;
+    justify-content: space-between;
+    align-items: flex-end;
     margin-bottom: 2rem;
+  }
+
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
   }
 
   .status-indicator {
@@ -102,6 +109,7 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.9rem;
     transition: transform 0.1s ease;
+    min-width: 0;
 
     &:hover {
       border-color: var(--color-cyan);
@@ -126,6 +134,7 @@
     min-width: 60px;
     text-align: center;
     background: #334155;
+    flex-shrink: 0;
   }
 
   /* Color coding methods */
@@ -151,11 +160,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
   }
 
   .status {
     margin-left: auto;
     font-weight: bold;
+    flex-shrink: 0;
   }
   .status-success {
     color: #4ade80;
@@ -170,6 +181,7 @@
   .time {
     color: var(--text-secondary);
     font-size: 0.8rem;
+    flex-shrink: 0;
   }
 
   .empty {
@@ -224,6 +236,7 @@
     border-radius: 4px;
     opacity: 0;
     transition: all 0.2s ease;
+    flex-shrink: 0;
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);

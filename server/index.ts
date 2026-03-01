@@ -5,7 +5,7 @@ import { isRequestComplete, isWebSocketUpgrade, parseRequest } from "./parser.ts
 import { sendResponse } from "./responder.ts";
 import { handleRouting } from "./router.ts";
 import { watchConfig } from "./config.ts";
-import { broadcast, handleWebSocketHandshake, startHeartbeat } from "./ws.ts";
+import { broadcast, encodeWsFrame, handleWebSocketHandshake, startHeartbeat } from "./ws.ts";
 
 const PORT = 3001;
 const server = net.createServer();
@@ -28,6 +28,7 @@ const socketManager = {
 };
 
 export const wsClients = new Map<string, net.Socket>();
+const requestHistory: any[] = [];
 
 server.on("connection", (socket) => {
   socketManager.add(socket);
@@ -51,9 +52,40 @@ server.on("connection", (socket) => {
           console.log(styleText(["magenta", "bold"], "[WebSocket] Handshake successful"));
           handleWebSocketHandshake(socket, request);
           wsClients.set(socketID, socket);
+
+          if (requestHistory.length > 0) {
+            socket.write(
+              encodeWsFrame(
+                JSON.stringify({
+                  type: "HISTORY",
+                  data: requestHistory,
+                }),
+              ),
+            );
+          }
         } else {
           const response = handleRouting(request);
           request.params = response.params;
+
+          if (request.path === "/_admin/clear" && request.method === "POST") {
+            requestHistory.length = 0;
+            console.log(styleText("yellow", "[Admin] Request history cleared"));
+          } else {
+            const logEntry = {
+              id: crypto.randomUUID(),
+              method: request.method,
+              path: request.path,
+              status: response.status,
+              timestamp: Date.now(),
+            };
+
+            requestHistory.push(logEntry);
+
+            if (requestHistory.length > 100) requestHistory.shift();
+
+            broadcast(wsClients, logEntry);
+            console.log(styleText("magenta", `   ↳ broadcasted to ${wsClients.size} clients`));
+          }
 
           const methodColor = request.method === "GET" ? "blue" : "green";
           console.log(styleText("bold", `\n[Router] `) + styleText(methodColor, request.method) + " " + styleText("white", request.path));
@@ -63,15 +95,6 @@ server.on("connection", (socket) => {
           }
 
           sendResponse(socket, response.status, response.message, response.body);
-
-          broadcast(wsClients, {
-            id: crypto.randomUUID(),
-            method: request.method,
-            path: request.path,
-            status: response.status,
-            timestamp: Date.now(),
-          });
-          console.log(styleText("magenta", `   ↳ broadcasted to ${wsClients.size} clients`));
         }
 
         requestBuffer = Buffer.alloc(0);

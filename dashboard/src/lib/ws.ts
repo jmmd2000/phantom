@@ -19,6 +19,12 @@ export function connectToServer() {
 
       if (data.type === "PING") return;
 
+      if (data.type === "HISTORY") {
+        // reverse to keep the newest on top
+        requestLog.set(data.data.reverse());
+        return;
+      }
+
       requestLog.update((logs) => {
         const updated = [data, ...logs];
 

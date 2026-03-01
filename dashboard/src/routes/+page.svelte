@@ -11,6 +11,11 @@
     if (status >= 400) return "status-warn";
     return "status-success";
   }
+
+  async function clearLogs() {
+    await fetch("http://localhost:3001/_admin/clear", { method: "POST" });
+    requestLog.set([]);
+  }
 </script>
 
 <div class="page-header">
@@ -19,6 +24,10 @@
     <span class="dot"></span>
     Dashboard active
   </div>
+
+  {#if $requestLog.length > 0}
+    <button class="clear-button" on:click={clearLogs}> Clear Logs </button>
+  {/if}
 </div>
 
 {#if $requestLog.length === 0}
@@ -74,11 +83,11 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.9rem;
     transition: transform 0.1s ease;
-  }
 
-  .log-entry:hover {
-    border-color: var(--color-cyan);
-    cursor: pointer;
+    &:hover {
+      border-color: var(--color-cyan);
+      cursor: pointer;
+    }
   }
 
   .entry-fail {
@@ -148,20 +157,36 @@
     margin-top: 6rem;
     color: var(--text-secondary);
     text-align: center;
+
+    & p {
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    & code {
+      background-color: var(--bg-sidebar);
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      color: var(--color-cyan);
+      font-family: ui-monospace, monospace;
+      font-size: 0.9rem;
+    }
   }
 
-  .empty p {
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .empty code {
-    background-color: var(--bg-sidebar);
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
+  .clear-button {
+    background: transparent;
     border: 1px solid var(--border-color);
-    color: var(--color-cyan);
-    font-family: ui-monospace, monospace;
-    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--text-secondary);
+      color: var(--text-primary);
+    }
   }
 </style>

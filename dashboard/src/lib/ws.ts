@@ -2,6 +2,8 @@ import { writable } from "svelte/store";
 
 export const requestLog = writable<any[]>([]);
 
+export const isConnected = writable(false);
+
 let socket: WebSocket | null = null;
 
 export function connectToServer() {
@@ -11,6 +13,7 @@ export function connectToServer() {
 
   socket.onopen = () => {
     console.log("[Phantom] Connected to live stream");
+    isConnected.set(true);
   };
 
   socket.onmessage = (event) => {
@@ -37,12 +40,14 @@ export function connectToServer() {
 
   socket.onclose = () => {
     console.log("[Phantom] Connection lost. Retrying in 3s...");
+    isConnected.set(false);
     socket = null;
     setTimeout(connectToServer, 3000);
   };
 
   socket.onerror = (err) => {
     console.error("WebSocket error:", err);
+    isConnected.set(false);
     socket?.close();
   };
 }

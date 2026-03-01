@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { connectToServer, requestLog } from "$lib/ws";
+  import { connectToServer, requestLog, isConnected } from "$lib/ws";
 
   onMount(() => {
     connectToServer();
@@ -26,8 +26,8 @@
 <div class="page-header">
   <h2>Request Feed</h2>
   <div class="status-indicator">
-    <span class="dot"></span>
-    Dashboard active
+    <span class="dot" class:online={$isConnected}></span>
+    {$isConnected ? "Dashboard active" : "Connecting to server..."}
   </div>
 
   {#if $requestLog.length > 0}
@@ -80,10 +80,17 @@
   .dot {
     width: 8px;
     height: 8px;
-    background-color: #22c55e;
+    background-color: #ef4444;
     border-radius: 50%;
-    box-shadow: 0 0 8px #22c55e;
+    box-shadow: 0 0 8px #ef4444;
+    transition: all 0.3s ease;
+
+    &.online {
+      background-color: #34d399;
+      box-shadow: 0 0 8px #34d399;
+    }
   }
+
   .log-entry {
     background-color: var(--bg-sidebar);
     padding: 0.75rem 1.25rem;

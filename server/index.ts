@@ -5,7 +5,7 @@ import { isRequestComplete, isWebSocketUpgrade, parseRequest } from "./parser.ts
 import { sendResponse } from "./responder.ts";
 import { handleRouting } from "./router.ts";
 import { watchConfig } from "./config.ts";
-import { broadcast, handleWebSocketHandshake } from "./ws.ts";
+import { broadcast, handleWebSocketHandshake, startHeartbeat } from "./ws.ts";
 
 const PORT = 3001;
 const server = net.createServer();
@@ -48,7 +48,7 @@ server.on("connection", (socket) => {
 
       if (request) {
         if (isWebSocketUpgrade(request.headers)) {
-          console.log(styleText("magenta", "[WebSocket] Upgrade request detected!"));
+          console.log(styleText(["magenta", "bold"], "[WebSocket] Handshake successful"));
           handleWebSocketHandshake(socket, request);
           wsClients.set(socketID, socket);
         } else {
@@ -71,6 +71,7 @@ server.on("connection", (socket) => {
             status: response.status,
             timestamp: Date.now(),
           });
+          console.log(styleText("magenta", `   ↳ broadcasted to ${wsClients.size} clients`));
         }
 
         requestBuffer = Buffer.alloc(0);
@@ -91,6 +92,7 @@ server.on("connection", (socket) => {
 });
 
 watchConfig();
+startHeartbeat(wsClients);
 
 server.listen(PORT, () => {
   console.clear();

@@ -66,3 +66,14 @@ export function broadcast(clients: Map<string, Socket>, message: any) {
     socket.write(frame);
   }
 }
+
+/**
+ * Starts a heartbeat interval to keep WebSocket connections alive.
+ */
+export function startHeartbeat(clients: Map<string, Socket>) {
+  setInterval(() => {
+    if (clients.size === 0) return;
+
+    broadcast(clients, { type: "PING", timestamp: Date.now() });
+  }, 30000);
+}

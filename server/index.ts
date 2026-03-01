@@ -101,7 +101,17 @@ server.on("connection", (socket) => {
             console.log(styleText("dim", "  params:"), request.params);
           }
 
-          sendResponse(socket, response.status, response.message, response.body);
+          const delay = response.delay ?? 0;
+
+          if (delay > 0) {
+            console.log(styleText("yellow", `   ↳ delaying response by ${delay}ms`));
+          }
+
+          setTimeout(() => {
+            if (!socket.destroyed) {
+              sendResponse(socket, response.status, response.message, response.body);
+            }
+          }, delay);
         }
 
         requestBuffer = Buffer.alloc(0);

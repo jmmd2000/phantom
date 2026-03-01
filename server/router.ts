@@ -1,7 +1,15 @@
 import { getActiveRoutes, writeRoutes, type RouteConfig } from "./config.ts";
 import type { MockRequest } from "./parser.ts";
 
-export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]) {
+export interface MockResponse {
+  status: number;
+  message: string;
+  body: any;
+  params: Record<string, string>;
+  delay?: number;
+}
+
+export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]): MockResponse {
   if (request.path === "/_admin/routes" && request.method === "GET") {
     return { status: 200, message: "OK", body: getActiveRoutes(), params: {} };
   }
@@ -24,6 +32,7 @@ export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]
         message: "OK",
         body: route.body,
         params,
+        delay: route.delay,
       };
     }
   }

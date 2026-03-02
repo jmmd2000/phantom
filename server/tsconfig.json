@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "rootDir": "./",
-    "outDir": "../dist/server",
+    "outDir": "./dist",
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "target": "es2022",
@@ -19,6 +19,9 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true
-  }
+    "rewriteRelativeImportExtensions": true,
+    "noEmit": false
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "__tests__"]
 }

@@ -1,5 +1,6 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html",
@@ -11,11 +12,13 @@ const MIME_TYPES: Record<string, string> = {
   ".json": "application/json",
 };
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 export async function handleStaticFile(requestPath: string) {
   let cleanPath = requestPath.split("?")[0] || "/";
   if (cleanPath === "/") cleanPath = "/index.html";
 
-  const buildDir = path.join(process.cwd(), "../dashboard/build");
+  const buildDir = path.join(__dirname, "dashboard-ui");
   let filePath = path.join(buildDir, cleanPath);
 
   try {

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import * as net from "node:net";
 import { styleText } from "node:util";
 import crypto from "node:crypto";
@@ -8,6 +9,12 @@ import { watchConfig, setConfigPath, reloadRoutes } from "./config.ts";
 import { broadcast, encodeWsFrame, handleWebSocketHandshake, startHeartbeat } from "./ws.ts";
 import { parseCLI } from "./cli.ts";
 import { handleStaticFile } from "./static.ts";
+import { readFileSync } from "node:fs";
+
+const pkg = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf-8"),
+);
+export const VERSION = pkg.version;
 
 const options = parseCLI();
 setConfigPath(options.config);
@@ -81,24 +88,12 @@ server.on("connection", (socket) => {
           const response = handleRouting(request);
           request.params = response.params;
 
-          const isAdmin = request.path === "/_admin/clear" && request.method === "POST";
+          const isAdmin = request.path.startsWith("/_admin/");
           let logEntry: any = null;
 
-          if (isAdmin) {
+          if (isAdmin && request.path === "/_admin/clear" && request.method === "POST") {
             requestHistory.length = 0;
             console.log(styleText("yellow", "[Admin] Request history cleared"));
-          } else {
-            logEntry = {
-              id: crypto.randomUUID(),
-              method: request.method,
-              path: request.path,
-              timestamp: start,
-              headers: request.headers,
-              body: request.body.toString("utf-8"),
-            };
-
-            requestHistory.push(logEntry);
-            if (requestHistory.length > 100) requestHistory.shift();
           }
 
           const methodColor = request.method === "GET" ? "blue" : "green";
@@ -128,12 +123,21 @@ server.on("connection", (socket) => {
             const errorRate = options.errorRate ?? response.errorRate ?? 0;
             const shouldError = Math.random() < errorRate;
 
-            if (logEntry) {
-              const responseBody = shouldError ? { error: "Artificial failure hit!" } : response.body;
+            if (!isAdmin) {
+              logEntry = {
+                id: crypto.randomUUID(),
+                method: request.method,
+                path: request.path,
+                timestamp: start,
+                headers: request.headers,
+                body: request.body.toString("utf-8"),
+                status: shouldError ? 500 : response.status,
+                duration: Date.now() - start,
+                responseBody: shouldError ? { error: "Artificial failure hit!" } : response.body,
+              };
 
-              logEntry.status = shouldError ? 500 : response.status;
-              logEntry.duration = Date.now() - start;
-              logEntry.responseBody = responseBody;
+              requestHistory.push(logEntry);
+              if (requestHistory.length > 100) requestHistory.shift();
 
               broadcast(wsClients, logEntry);
               console.log(styleText("magenta", `   ↳ broadcasted with ${logEntry.duration}ms latency`));
@@ -182,7 +186,7 @@ server.listen(PORT, () => {
   const arrow = styleText("magenta", "→");
 
   console.log(`
-  ${brand} ${styleText("dim", "v0.0.0")}
+  ${brand} ${styleText("dim", `v${VERSION}`)}
 
   ${portLabel}  ${styleText("bold", PORT.toString())}
   ${envLabel}  ${styleText("bold", "development")}

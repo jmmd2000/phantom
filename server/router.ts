@@ -1,5 +1,6 @@
 import { getActiveRoutes, writeRoutes, type RouteConfig } from "./config.ts";
 import type { MockRequest } from "./parser.ts";
+import { VERSION } from "./index.ts";
 
 export interface MockResponse {
   status: number;
@@ -12,6 +13,10 @@ export interface MockResponse {
 }
 
 export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]): MockResponse {
+  if (request.path === "/_admin/version" && request.method === "GET") {
+    return { status: 200, message: "OK", body: { version: VERSION }, params: {} };
+  }
+
   if (request.path === "/_admin/routes" && request.method === "GET") {
     return { status: 200, message: "OK", body: getActiveRoutes(), params: {} };
   }

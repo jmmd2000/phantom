@@ -13,12 +13,25 @@
   let { children }: { children: Snippet } = $props();
   let selectedRouteIndex = $state<number | null>(null);
   let isFiltersOpen = $state(true);
+  let serverVersion = $state("0.0.0");
 
-  onMount(() => {
+  onMount(async () => {
     fetchMockRoutes();
     connectToServer();
+
+    try {
+      const res = await fetch("http://localhost:3001/_admin/version");
+      const data = await res.json();
+      serverVersion = data.version;
+    } catch (e) {
+      console.error("Failed to fetch version");
+    }
   });
 </script>
+
+<svelte:head>
+  <title>PHANTOM | Dashboard</title>
+</svelte:head>
 
 <div class="app-layout">
   <aside class="sidebar">
@@ -28,7 +41,7 @@
       </span>
       <div class="logo-text">
         <span class="logo-name">PHANTOM</span>
-        <span class="version">v0.0.0</span>
+        <span class="version">v{serverVersion}</span>
       </div>
     </div>
     <div class="sidebar-divider"></div>

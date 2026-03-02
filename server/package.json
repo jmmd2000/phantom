@@ -1,9 +1,18 @@
 {
-  "name": "phantom-server",
-  "version": "0.0.0",
-  "private": true,
+  "name": "phantom",
+  "version": "0.1.0",
+  "description": "API mocker and traffic inspector with a built-in dashboard.",
+  "author": "James Doyle",
+  "license": "MIT",
+  "bin": {
+    "phantom": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "scripts": {
+    "build": "tsc && cp package.json ./dist/ && cp -r ../dashboard/build ./dist/dashboard-ui",
     "dev": "node --watch --experimental-strip-types index.ts",
     "test": "vitest run"
   },

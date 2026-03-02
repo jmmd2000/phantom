@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Download, Trash2, Maximize2, Minimize2 } from "lucide-svelte";
   import {
     requestLog,
     isConnected,
@@ -9,6 +10,8 @@
   import StatusIndicator from "$lib/components/StatusIndicator.svelte";
   import LogEntry from "$lib/components/LogEntry.svelte";
   import SearchInput from "$lib/components/SearchInput.svelte";
+  import ExportButton from "$lib/components/ExportButton.svelte";
+  import Button from "$lib/components/Button.svelte";
 
   let searchTerm = $state("");
 
@@ -54,10 +57,23 @@
     {#if $requestLog.length > 0}
       <div class="header-controls">
         <SearchInput bind:value={searchTerm} />
-        <button class="control-button" onclick={toggleExpandAll}>
+        <Button onclick={toggleExpandAll} active={$isGlobalExpanded}>
+          {#snippet icon()}
+            {#if $isGlobalExpanded}
+              <Minimize2 size={14} strokeWidth={2.5} />
+            {:else}
+              <Maximize2 size={14} strokeWidth={2.5} />
+            {/if}
+          {/snippet}
           {$isGlobalExpanded ? "Collapse All" : "Expand All"}
-        </button>
-        <button class="clear-button" onclick={clearLogs}>Clear Logs</button>
+        </Button>
+        <ExportButton />
+        <Button variant="danger" onclick={clearLogs}>
+          {#snippet icon()}
+            <Trash2 size={14} strokeWidth={2.5} />
+          {/snippet}
+          Clear Logs
+        </Button>
       </div>
     {/if}
   </div>
@@ -99,23 +115,6 @@
     margin-top: 0.5rem;
   }
 
-  .control-button {
-    background: transparent;
-    border: 2px solid var(--border-color);
-    color: var(--text-secondary);
-    padding: 0.4rem 1rem;
-    font-size: 0.8rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-
-    &:hover {
-      border-color: var(--accent);
-      color: var(--text-sidebar);
-      background-color: var(--accent);
-    }
-  }
-
   h2 {
     margin: 0;
     font-size: 1.4rem;
@@ -152,24 +151,6 @@
       color: var(--accent);
       font-family: ui-monospace, monospace;
       font-size: 0.875rem;
-    }
-  }
-
-  .clear-button {
-    background: transparent;
-    border: 2px solid var(--border-color);
-    color: var(--text-secondary);
-    padding: 0.4rem 0.85rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    font-family: inherit;
-    transition: all 0.15s ease;
-
-    &:hover {
-      border-color: var(--accent);
-      color: var(--text-sidebar);
-      background-color: var(--accent);
     }
   }
 </style>

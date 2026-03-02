@@ -16,7 +16,9 @@
     $requestLog.filter((log) => {
       const matchesSearch =
         log.path.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.method.toLowerCase().includes(searchTerm.toLowerCase());
+        log.method.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (log.body && log.body.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (log.responseBody && JSON.stringify(log.responseBody).toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchesMethod = $activeMethodFilter ? log.method === $activeMethodFilter : true;
 

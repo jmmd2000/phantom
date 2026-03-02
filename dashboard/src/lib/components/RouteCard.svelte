@@ -19,7 +19,11 @@
     saveRoutes();
   };
 
-  let isModified = $derived(route.delay > 0 || route.errorRate > 0);
+  let isModified = $derived(
+    route.delay > 0 ||
+      route.errorRate > 0 ||
+      Object.keys(route.headers || {}).length > 0,
+  );
 </script>
 
 <div class="route-card" class:disabled={!route.enabled}>

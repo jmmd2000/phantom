@@ -8,6 +8,7 @@ export interface RouteConfig {
   enabled: boolean;
   delay: number;
   errorRate: number;
+  headers: Record<string, string>;
 }
 
 const routeDefaults = (route: Partial<RouteConfig>): RouteConfig => ({
@@ -18,6 +19,7 @@ const routeDefaults = (route: Partial<RouteConfig>): RouteConfig => ({
   enabled: route.enabled ?? true,
   delay: route.delay ?? 0,
   errorRate: route.errorRate ?? 0,
+  headers: route.headers ?? {},
 });
 
 const routeStore = $state<{ items: RouteConfig[] }>({ items: [] });

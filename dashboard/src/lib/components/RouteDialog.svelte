@@ -3,18 +3,26 @@
   import { mockRoutes, saveRoutes, type RouteConfig } from "$lib/routes.svelte";
   import DelayInput from "./DelayInput.svelte";
   import ErrorRateInput from "./ErrorRateInput.svelte";
+  import HeadersEditor from "./HeadersEditor.svelte";
 
   let { index, onclose }: { index: number; onclose: () => void } = $props();
-
-  let route = $derived(mockRoutes.items[index]);
 
   const handleChange = async () => {
     await tick();
     saveRoutes();
   };
 
-  const handleBackdropClick = (e: MouseEvent) => {
-    if (e.target === e.currentTarget) onclose();
+  let clickStartedOnBackdrop = false;
+
+  const handleMouseDown = (e: MouseEvent) => {
+    clickStartedOnBackdrop = e.target === e.currentTarget;
+  };
+
+  const handleMouseUp = (e: MouseEvent) => {
+    if (clickStartedOnBackdrop && e.target === e.currentTarget) {
+      onclose();
+    }
+    clickStartedOnBackdrop = false;
   };
 
   const handleKeydown = (e: KeyboardEvent) => {
@@ -26,15 +34,19 @@
 
 <div
   class="backdrop"
-  onclick={handleBackdropClick}
-  onkeydown={handleKeydown}
+  onmousedown={handleMouseDown}
+  onmouseup={handleMouseUp}
   role="presentation"
 >
-  <div class="dialog" role="dialog" aria-label="Route settings for {route.path}">
+  <div
+    class="dialog"
+    role="dialog"
+    aria-label="Route settings for {mockRoutes.items[index].path}"
+  >
     <div class="dialog-header">
       <div class="dialog-title">
-        <span class="dialog-method">{route.method}</span>
-        <span class="dialog-path">{route.path}</span>
+        <span class="dialog-method">{mockRoutes.items[index].method}</span>
+        <span class="dialog-path">{mockRoutes.items[index].path}</span>
       </div>
       <button class="close-button" onclick={onclose}>&times;</button>
     </div>
@@ -54,6 +66,14 @@
           bind:value={mockRoutes.items[index].errorRate}
           onchange={handleChange}
           id="error-rate-input"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field-label">Custom Response Headers</label>
+        <HeadersEditor
+          bind:headers={mockRoutes.items[index].headers}
+          onchange={handleChange}
         />
       </div>
     </div>

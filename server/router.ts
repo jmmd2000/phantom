@@ -21,6 +21,10 @@ export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]
     return { status: 200, message: "OK", body: { success: true }, params: {} };
   }
 
+  if (request.path === "/_admin/clear" && request.method === "POST") {
+    return { status: 200, message: "OK", body: { success: true }, params: {} };
+  }
+
   const routes = customRoutes || getActiveRoutes();
 
   for (const route of routes) {

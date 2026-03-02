@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { connectToServer, requestLog, isConnected } from "$lib/ws";
+  import { connectToServer, requestLog, isConnected, isGlobalExpanded } from "$lib/ws";
   import StatusIndicator from "$lib/components/StatusIndicator.svelte";
   import LogEntry from "$lib/components/LogEntry.svelte";
   import SearchInput from "$lib/components/SearchInput.svelte";
@@ -18,6 +18,10 @@
         log.method.toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
+
+  function toggleExpandAll() {
+    isGlobalExpanded.update((v) => !v);
+  }
 
   async function clearLogs() {
     await fetch("http://localhost:3001/_admin/clear", { method: "POST" });
@@ -38,6 +42,9 @@
     {#if $requestLog.length > 0}
       <div class="header-controls">
         <SearchInput bind:value={searchTerm} />
+        <button class="control-button" onclick={toggleExpandAll}>
+          {$isGlobalExpanded ? "Collapse All" : "Expand All"}
+        </button>
         <button class="clear-button" onclick={clearLogs}>Clear Logs</button>
       </div>
     {/if}
@@ -78,6 +85,24 @@
     align-items: center;
     gap: 1rem;
     margin-top: 0.5rem;
+  }
+
+  .control-button {
+    background: transparent;
+    border: 2px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+      border-color: var(--accent);
+      color: var(--text-sidebar);
+      background-color: var(--accent);
+    }
   }
 
   h2 {

@@ -71,27 +71,28 @@ server.on("connection", (socket) => {
             );
           }
         } else {
+          const start = Date.now();
           const response = handleRouting(request);
           request.params = response.params;
 
-          if (request.path === "/_admin/clear" && request.method === "POST") {
+          const isAdmin = request.path === "/_admin/clear" && request.method === "POST";
+          let logEntry: any = null;
+
+          if (isAdmin) {
             requestHistory.length = 0;
             console.log(styleText("yellow", "[Admin] Request history cleared"));
           } else {
-            const logEntry = {
+            logEntry = {
               id: crypto.randomUUID(),
               method: request.method,
               path: request.path,
-              status: response.status,
-              timestamp: Date.now(),
+              timestamp: start,
+              headers: request.headers,
+              body: request.body.toString("utf-8"),
             };
 
             requestHistory.push(logEntry);
-
             if (requestHistory.length > 100) requestHistory.shift();
-
-            broadcast(wsClients, logEntry);
-            console.log(styleText("magenta", `   ↳ broadcasted to ${wsClients.size} clients`));
           }
 
           const methodColor = request.method === "GET" ? "blue" : "green";
@@ -112,6 +113,19 @@ server.on("connection", (socket) => {
 
             const errorRate = response.errorRate ?? 0;
             const shouldError = Math.random() < errorRate;
+
+            if (logEntry) {
+              const responseBody = shouldError
+                ? { error: "Artificial failure hit!" }
+                : response.body;
+
+              logEntry.status = shouldError ? 500 : response.status;
+              logEntry.duration = Date.now() - start;
+              logEntry.responseBody = responseBody;
+
+              broadcast(wsClients, logEntry);
+              console.log(styleText("magenta", `   ↳ broadcasted with ${logEntry.duration}ms latency`));
+            }
 
             if (shouldError) {
               console.log(styleText("red", "   ↳ Artificial failure hit!"));

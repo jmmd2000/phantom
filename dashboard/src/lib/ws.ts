@@ -5,6 +5,8 @@ export const requestLog = writable<any[]>([]);
 
 export const isConnected = writable(false);
 
+export const isGlobalExpanded = writable(false);
+
 let socket: WebSocket | null = null;
 
 export function connectToServer() {

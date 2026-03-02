@@ -1,6 +1,6 @@
 {
   "name": "@jamesmddoyle/phantom",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "API mocker and traffic inspector with a built-in dashboard.",
   "author": "James Doyle",
   "license": "MIT",
@@ -8,7 +8,8 @@
     "phantom": "./dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "type": "module",
   "scripts": {

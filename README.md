@@ -1,5 +1,7 @@
 # PHANTOM
 
+[![npm version](https://img.shields.io/npm/v/%40jamesmddoyle%2Fphantom?color=5e4d8a)](https://www.npmjs.com/package/@jamesmddoyle/phantom)
+
 Phantom is a low-level API mocker and traffic inspector. Built using raw Node.js TCP sockets. It includes a built in dashboard for real-time monitoring and route configuration.
 
 ## Features
@@ -12,10 +14,10 @@ Phantom is a low-level API mocker and traffic inspector. Built using raw Node.js
 
 ## Installation
 
-Install Phantom globally via npm:
+Install Phantom via npm:
 
 ```bash
-npm install -g phantom
+npm i @jamesmddoyle/phantom
 ```
 
 ## Usage

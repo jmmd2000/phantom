@@ -1,15 +1,13 @@
 <script lang="ts">
-  let { value = $bindable(0), onchange }: { value?: number; onchange?: () => void } = $props();
+  let {
+    value = $bindable(0),
+    onchange,
+    id,
+  }: { value?: number; onchange?: () => void; id?: string } = $props();
 </script>
 
 <div class="delay-input">
-  <input
-    type="number"
-    bind:value
-    min={0}
-    step={100}
-    onchange={() => onchange?.()}
-  />
+  <input type="number" bind:value min={0} step={100} onchange={() => onchange?.()} {id} />
   <span class="suffix">ms</span>
 </div>
 

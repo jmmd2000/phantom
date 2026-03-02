@@ -2,6 +2,7 @@
   import { tick } from "svelte";
   import { mockRoutes, saveRoutes, type RouteConfig } from "$lib/routes.svelte";
   import DelayInput from "./DelayInput.svelte";
+  import ErrorRateInput from "./ErrorRateInput.svelte";
 
   let { index, onclose }: { index: number; onclose: () => void } = $props();
 
@@ -41,7 +42,19 @@
     <div class="dialog-body">
       <div class="field">
         <label class="field-label" for="delay-input">Delay</label>
-        <DelayInput bind:value={mockRoutes.items[index].delay} onchange={handleChange} />
+        <DelayInput
+          bind:value={mockRoutes.items[index].delay}
+          onchange={handleChange}
+          id="delay-input"
+        />
+      </div>
+      <div class="field">
+        <label class="field-label" for="error-rate-input">Error Rate</label>
+        <ErrorRateInput
+          bind:value={mockRoutes.items[index].errorRate}
+          onchange={handleChange}
+          id="error-rate-input"
+        />
       </div>
     </div>
   </div>

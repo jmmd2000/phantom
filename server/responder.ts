@@ -33,11 +33,13 @@ export function sendResponse(socket: Socket, status: number, message: string, bo
 }
 
 /**
- * Builds a valid HTTP response string.
+ * Builds a valid HTTP response as a Buffer.
  */
-export function buildResponse(status: number, message: string, body: any, customHeaders: Record<string, string> = {}): string {
-  const bodyString = typeof body === "object" ? JSON.stringify(body) : String(body);
-  const bodyLength = Buffer.byteLength(bodyString, "utf-8");
+export function buildResponse(status: number, message: string, body: any, customHeaders: Record<string, string> = {}): Buffer {
+  const isBuffer = Buffer.isBuffer(body);
+  const bodyBuffer = isBuffer ? body : Buffer.from(typeof body === "object" ? JSON.stringify(body) : String(body));
+
+  const bodyLength = bodyBuffer.length;
   const date = new Date().toUTCString();
 
   const lines = [`HTTP/1.1 ${status} ${message}`];
@@ -53,11 +55,9 @@ export function buildResponse(status: number, message: string, body: any, custom
   });
 
   if (!customHeaders["Content-Type"] && !customHeaders["content-type"]) {
-    lines.push("Content-Type: application/json");
+    lines.push(`Content-Type: ${isBuffer ? "application/octet-stream" : "application/json"}`);
   }
 
-  lines.push(""); // empty line boundary
-  lines.push(bodyString);
-
-  return lines.join("\r\n");
+  const headerString = lines.join("\r\n") + "\r\n\r\n";
+  return Buffer.concat([Buffer.from(headerString), bodyBuffer]);
 }

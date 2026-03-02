@@ -7,6 +7,7 @@ import { handleRouting } from "./router.ts";
 import { watchConfig, setConfigPath, reloadRoutes } from "./config.ts";
 import { broadcast, encodeWsFrame, handleWebSocketHandshake, startHeartbeat } from "./ws.ts";
 import { parseCLI } from "./cli.ts";
+import { handleStaticFile } from "./static.ts";
 
 const options = parseCLI();
 setConfigPath(options.config);
@@ -113,8 +114,16 @@ server.on("connection", (socket) => {
             console.log(styleText("yellow", `   ↳ delaying response by ${delay}ms`));
           }
 
-          setTimeout(() => {
+          setTimeout(async () => {
             if (socket.destroyed) return;
+
+            if (response.status === 404) {
+              const staticFile = await handleStaticFile(request.path);
+              if (staticFile) {
+                sendResponse(socket, 200, "OK", staticFile.body, staticFile.headers);
+                return;
+              }
+            }
 
             const errorRate = options.errorRate ?? response.errorRate ?? 0;
             const shouldError = Math.random() < errorRate;

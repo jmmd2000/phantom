@@ -26,8 +26,8 @@ export function sendCorsPreflightResponse(socket: Socket) {
 /**
  * Sends a basic HTTP response to the client.
  */
-export function sendResponse(socket: Socket, status: number, message: string, body: any) {
-  const response = buildResponse(status, message, body);
+export function sendResponse(socket: Socket, status: number, message: string, body: any, headers: Record<string, string> = {}) {
+  const response = buildResponse(status, message, body, headers);
   socket.write(response);
   socket.end();
 }
@@ -35,20 +35,29 @@ export function sendResponse(socket: Socket, status: number, message: string, bo
 /**
  * Builds a valid HTTP response string.
  */
-export function buildResponse(status: number, message: string, body: any): string {
+export function buildResponse(status: number, message: string, body: any, customHeaders: Record<string, string> = {}): string {
   const bodyString = typeof body === "object" ? JSON.stringify(body) : String(body);
   const bodyLength = Buffer.byteLength(bodyString, "utf-8");
   const date = new Date().toUTCString();
 
-  return [
-    `HTTP/1.1 ${status} ${message}`,
-    `Date: ${date}`,
-    `Server: Phantom/0.0.0`,
-    `Content-Type: application/json`,
-    `Content-Length: ${bodyLength}`,
-    `Access-Control-Allow-Origin: *`,
-    `Connection: close`,
-    "", // Empty line boundary
-    bodyString,
-  ].join("\r\n");
+  const lines = [`HTTP/1.1 ${status} ${message}`];
+
+  lines.push(`Date: ${date}`);
+  lines.push(`Server: Phantom/0.0.0`);
+  lines.push(`Content-Length: ${bodyLength}`);
+  lines.push(`Access-Control-Allow-Origin: *`);
+  lines.push(`Connection: close`);
+
+  Object.entries(customHeaders).forEach(([key, value]) => {
+    lines.push(`${key}: ${value}`);
+  });
+
+  if (!customHeaders["Content-Type"] && !customHeaders["content-type"]) {
+    lines.push("Content-Type: application/json");
+  }
+
+  lines.push(""); // empty line boundary
+  lines.push(bodyString);
+
+  return lines.join("\r\n");
 }

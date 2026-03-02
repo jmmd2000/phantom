@@ -8,6 +8,7 @@ export interface MockResponse {
   params: Record<string, string>;
   delay?: number;
   errorRate?: number;
+  headers?: Record<string, string>;
 }
 
 export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]): MockResponse {
@@ -39,6 +40,7 @@ export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]
         params,
         delay: route.delay,
         errorRate: route.errorRate,
+        headers: route.headers || {},
       };
     }
   }

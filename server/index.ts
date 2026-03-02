@@ -115,9 +115,7 @@ server.on("connection", (socket) => {
             const shouldError = Math.random() < errorRate;
 
             if (logEntry) {
-              const responseBody = shouldError
-                ? { error: "Artificial failure hit!" }
-                : response.body;
+              const responseBody = shouldError ? { error: "Artificial failure hit!" } : response.body;
 
               logEntry.status = shouldError ? 500 : response.status;
               logEntry.duration = Date.now() - start;
@@ -135,7 +133,7 @@ server.on("connection", (socket) => {
               return;
             }
 
-            sendResponse(socket, response.status, response.message, response.body);
+            sendResponse(socket, response.status, response.message, response.body, response.headers);
           }, delay);
         }
 

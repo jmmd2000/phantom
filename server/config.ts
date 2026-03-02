@@ -12,6 +12,7 @@ export interface RouteConfig {
   enabled: boolean;
   delay: number;
   errorRate: number;
+  headers?: Record<string, string>;
 }
 
 let activeRoutes: RouteConfig[] = [];
@@ -47,7 +48,7 @@ export function watchConfig(onReload: () => void) {
         reloadRoutes();
         onReload();
         watchTimeout = null;
-      }, 100);
+      }, 300);
     }
   });
 }

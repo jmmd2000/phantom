@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isHeaderComplete, parseHeaders, parseRequest, parseRequestLine, splitRequest } from "../parser.ts";
+import { isHeaderComplete, isRequestComplete, parseHeaders, parseRequest, parseRequestLine, splitRequest } from "../parser.ts";
 
 describe("isHeaderComplete", () => {
   it("returns false for incomplete headers", () => {
@@ -10,6 +10,20 @@ describe("isHeaderComplete", () => {
   it("returns true for complete headers", () => {
     const buffer = Buffer.from("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n");
     expect(isHeaderComplete(buffer)).toBe(true);
+  });
+});
+
+describe("isRequestComplete", () => {
+  it("returns false for incomplete chunked stream", () => {
+    const raw = Buffer.from(
+      "POST / HTTP/1.1\r\n" + "Transfer-Encoding: chunked\r\n" + "\r\n" + "5\r\nHello\r\n", // No ending 0\r\n\r\n
+    );
+    expect(isRequestComplete(raw)).toBe(false);
+  });
+
+  it("returns true for finished chunked stream", () => {
+    const raw = Buffer.from("POST / HTTP/1.1\r\n" + "Transfer-Encoding: chunked\r\n" + "\r\n" + "5\r\nHello\r\n" + "0\r\n\r\n");
+    expect(isRequestComplete(raw)).toBe(true);
   });
 });
 
@@ -103,5 +117,17 @@ describe("parseRequest", () => {
     const result = parseRequest(raw);
     expect(result?.body.toString()).toBe("HELLO");
     expect(result?.body.length).toBe(5);
+  });
+
+  it("correctly de-chunks a body", () => {
+    const raw = Buffer.from("POST / HTTP/1.1\r\n" + "Transfer-Encoding: chunked\r\n" + "\r\n" + "5\r\nHello\r\n" + "6\r\n World\r\n" + "0\r\n\r\n");
+    const result = parseRequest(raw);
+    expect(result?.body.toString()).toBe("Hello World");
+  });
+
+  it("handles chunk extensions (semicolon)", () => {
+    const raw = Buffer.from("POST / HTTP/1.1\r\n" + "Transfer-Encoding: chunked\r\n" + "\r\n" + "5;name=val\r\nHello\r\n" + "0\r\n\r\n");
+    const result = parseRequest(raw);
+    expect(result?.body.toString()).toBe("Hello");
   });
 });

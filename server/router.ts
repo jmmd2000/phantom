@@ -7,6 +7,7 @@ export interface MockResponse {
   body: any;
   params: Record<string, string>;
   delay?: number;
+  errorRate?: number;
 }
 
 export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]): MockResponse {
@@ -33,6 +34,7 @@ export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]
         body: route.body,
         params,
         delay: route.delay,
+        errorRate: route.errorRate,
       };
     }
   }

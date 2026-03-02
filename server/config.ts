@@ -11,6 +11,7 @@ export interface RouteConfig {
   body: any;
   enabled: boolean;
   delay: number;
+  errorRate: number;
 }
 
 let activeRoutes: RouteConfig[] = [];

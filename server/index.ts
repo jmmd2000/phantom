@@ -108,9 +108,20 @@ server.on("connection", (socket) => {
           }
 
           setTimeout(() => {
-            if (!socket.destroyed) {
-              sendResponse(socket, response.status, response.message, response.body);
+            if (socket.destroyed) return;
+
+            const errorRate = response.errorRate ?? 0;
+            const shouldError = Math.random() < errorRate;
+
+            if (shouldError) {
+              console.log(styleText("red", "   ↳ Artificial failure hit!"));
+              sendResponse(socket, 500, "Internal Server Error", {
+                error: "Artificial failure hit!",
+              });
+              return;
             }
+
+            sendResponse(socket, response.status, response.message, response.body);
           }, delay);
         }
 

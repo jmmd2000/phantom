@@ -4,10 +4,15 @@ import crypto from "node:crypto";
 import { isRequestComplete, isWebSocketUpgrade, parseRequest } from "./parser.ts";
 import { sendCorsPreflightResponse, sendResponse } from "./responder.ts";
 import { handleRouting } from "./router.ts";
-import { watchConfig } from "./config.ts";
+import { watchConfig, setConfigPath, reloadRoutes } from "./config.ts";
 import { broadcast, encodeWsFrame, handleWebSocketHandshake, startHeartbeat } from "./ws.ts";
+import { parseCLI } from "./cli.ts";
 
-const PORT = 3001;
+const options = parseCLI();
+setConfigPath(options.config);
+reloadRoutes();
+
+const PORT = options.port;
 const server = net.createServer();
 
 const socketManager = {
@@ -102,7 +107,7 @@ server.on("connection", (socket) => {
             console.log(styleText("dim", "  params:"), request.params);
           }
 
-          const delay = response.delay ?? 0;
+          const delay = options.delay ?? response.delay ?? 0;
 
           if (delay > 0) {
             console.log(styleText("yellow", `   ↳ delaying response by ${delay}ms`));
@@ -111,7 +116,7 @@ server.on("connection", (socket) => {
           setTimeout(() => {
             if (socket.destroyed) return;
 
-            const errorRate = response.errorRate ?? 0;
+            const errorRate = options.errorRate ?? response.errorRate ?? 0;
             const shouldError = Math.random() < errorRate;
 
             if (logEntry) {

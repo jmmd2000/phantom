@@ -7,11 +7,11 @@
     activeMethodFilter,
     activeStatusFilter,
   } from "$lib/ws";
-  import StatusIndicator from "$lib/components/StatusIndicator.svelte";
-  import LogEntry from "$lib/components/LogEntry.svelte";
-  import SearchInput from "$lib/components/SearchInput.svelte";
-  import ExportButton from "$lib/components/ExportButton.svelte";
-  import Button from "$lib/components/Button.svelte";
+  import StatusIndicator from "$lib/components/ui/StatusIndicator.svelte";
+  import LogEntry from "$lib/components/logs/LogEntry.svelte";
+  import SearchInput from "$lib/components/ui/SearchInput.svelte";
+  import ExportButton from "$lib/components/ui/ExportButton.svelte";
+  import Button from "$lib/components/ui/Button.svelte";
 
   let searchTerm = $state("");
 

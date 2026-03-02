@@ -2,10 +2,10 @@
   import type { Snippet } from "svelte";
   import { fetchMockRoutes, mockRoutes } from "$lib/routes.svelte";
   import { onMount } from "svelte";
-  import PhantomLogo from "$lib/components/PhantomLogo.svelte";
+  import PhantomLogo from "$lib/components/ui/PhantomLogo.svelte";
   import "../app.css";
-  import RouteCard from "$lib/components/RouteCard.svelte";
-  import RouteDialog from "$lib/components/RouteDialog.svelte";
+  import RouteCard from "$lib/components/routes/RouteCard.svelte";
+  import RouteDialog from "$lib/components/routes/RouteDialog.svelte";
   import { connectToServer, activeMethodFilter, activeStatusFilter } from "$lib/ws";
   import { ChevronRight } from "lucide-svelte";
   import { slide } from "svelte/transition";

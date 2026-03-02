@@ -2,10 +2,10 @@ import { writable } from "svelte/store";
 import { fetchMockRoutes } from "./routes.svelte";
 
 export const requestLog = writable<any[]>([]);
-
 export const isConnected = writable(false);
-
 export const isGlobalExpanded = writable(false);
+export const activeMethodFilter = writable<string | null>(null);
+export const activeStatusFilter = writable<string | null>(null);
 
 let socket: WebSocket | null = null;
 

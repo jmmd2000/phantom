@@ -18,13 +18,20 @@
     await tick();
     saveRoutes();
   };
+
+  let isModified = $derived(route.delay > 0 || route.errorRate > 0);
 </script>
 
 <div class="route-card" class:disabled={!route.enabled}>
   <div class="route-header">
     <span class="route-path">{route.path}</span>
     <div class="route-controls">
-      <button class="settings-button" onclick={onopen} aria-label="Route settings">
+      <button
+        class="settings-button"
+        class:modified={isModified}
+        onclick={onopen}
+        aria-label="Route settings"
+      >
         <Settings size={16} />
       </button>
       <Toggle bind:checked={mockRoutes.items[index].enabled} onchange={handleToggle} />
@@ -115,6 +122,15 @@
 
     &:hover {
       color: var(--text-sidebar);
+    }
+
+    &.modified {
+      color: var(--accent-saturated);
+      filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.4));
+    }
+
+    &.modified:hover {
+      color: var(--accent-light);
     }
   }
 </style>

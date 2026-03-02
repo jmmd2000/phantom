@@ -6,10 +6,13 @@
   import "../app.css";
   import RouteCard from "$lib/components/RouteCard.svelte";
   import RouteDialog from "$lib/components/RouteDialog.svelte";
-  import { connectToServer } from "$lib/ws";
+  import { connectToServer, activeMethodFilter, activeStatusFilter } from "$lib/ws";
+  import { ChevronRight } from "lucide-svelte";
+  import { slide } from "svelte/transition";
 
   let { children }: { children: Snippet } = $props();
   let selectedRouteIndex = $state<number | null>(null);
+  let isFiltersOpen = $state(true);
 
   onMount(() => {
     fetchMockRoutes();
@@ -29,12 +32,70 @@
       </div>
     </div>
     <div class="sidebar-divider"></div>
+
     <nav class="sidebar-nav">
-      <div class="nav-header">MOCK ROUTES</div>
-      <div class="route-list">
-        {#each mockRoutes.items as route, i}
-          <RouteCard {route} index={i} onopen={() => (selectedRouteIndex = i)} />
-        {/each}
+      <div class="nav-section">
+        <div
+          class="section-header interactive"
+          onclick={() => (isFiltersOpen = !isFiltersOpen)}
+          onkeydown={(e) => e.key === "Enter" && (isFiltersOpen = !isFiltersOpen)}
+          role="button"
+          tabindex="0"
+        >
+          <span class="nav-label">FILTERS</span>
+          <ChevronRight
+            size={14}
+            strokeWidth={3}
+            class="section-chevron {isFiltersOpen ? 'rotated' : ''}"
+          />
+        </div>
+
+        {#if isFiltersOpen}
+          <div class="section-content" transition:slide={{ duration: 200 }}>
+            <div class="filter-group">
+              <div class="filter-label">Method</div>
+              <div class="filter-buttons">
+                {#each ["GET", "POST", "PUT", "PATCH", "DELETE"] as m}
+                  <button
+                    class="filter-btn"
+                    class:active={$activeMethodFilter === m}
+                    onclick={() =>
+                      activeMethodFilter.set($activeMethodFilter === m ? null : m)}
+                  >
+                    {m}
+                  </button>
+                {/each}
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <div class="filter-label">Status</div>
+              <div class="filter-buttons">
+                {#each ["2xx", "4xx", "5xx"] as s}
+                  <button
+                    class="filter-btn"
+                    class:active={$activeStatusFilter === s}
+                    onclick={() =>
+                      activeStatusFilter.set($activeStatusFilter === s ? null : s)}
+                  >
+                    {s}
+                  </button>
+                {/each}
+              </div>
+            </div>
+          </div>
+        {/if}
+      </div>
+
+      <div class="nav-section">
+        <div class="section-header">
+          <span class="nav-label">MOCK ROUTES</span>
+        </div>
+        <div class="route-list">
+          {#each mockRoutes.items as route, i}
+            <RouteCard {route} index={i} onopen={() => (selectedRouteIndex = i)} />
+          {/each}
+        </div>
       </div>
     </nav>
   </aside>
@@ -63,7 +124,7 @@
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
     height: 100vh;
     overflow: hidden;
   }
@@ -104,7 +165,7 @@
     height: 1px;
     background: linear-gradient(to right, var(--accent-light), transparent);
     flex-shrink: 0;
-    margin: -0.5rem 0;
+    margin: -0.25rem 0;
   }
 
   .sidebar-nav {
@@ -114,13 +175,109 @@
     flex: 1;
   }
 
-  .nav-header {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text-sidebar-muted);
-    letter-spacing: 0.1em;
+  .nav-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .nav-section:last-of-type {
+    flex: 1;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     margin-bottom: 0.75rem;
-    flex-shrink: 0;
+    transition: border-color 0.15s ease;
+  }
+
+  .section-header.interactive {
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+
+    &:hover {
+      border-bottom-color: rgba(255, 255, 255, 0.15);
+    }
+
+    &:hover .nav-label {
+      opacity: 1;
+    }
+  }
+
+  .nav-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--text-sidebar);
+    letter-spacing: 0.15em;
+    opacity: 0.8;
+    transition: opacity 0.15s ease;
+  }
+
+  :global(.section-chevron) {
+    color: var(--text-sidebar-muted);
+    transition:
+      transform 0.2s ease,
+      color 0.15s ease;
+  }
+
+  :global(.section-chevron.rotated) {
+    transform: rotate(90deg);
+    color: var(--accent);
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .filter-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-sidebar);
+    opacity: 0.6;
+    text-transform: uppercase;
+  }
+
+  .filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .filter-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-sidebar-muted);
+    font-family: ui-monospace, monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-sidebar);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    &.active {
+      background: var(--accent);
+      color: var(--text-sidebar);
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(91, 164, 207, 0.2);
+    }
   }
 
   .content {
@@ -138,5 +295,7 @@
     overflow-y: auto;
     flex: 1;
     padding-right: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-light) transparent;
   }
 </style>

@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { requestLog, isConnected, isGlobalExpanded } from "$lib/ws";
+  import {
+    requestLog,
+    isConnected,
+    isGlobalExpanded,
+    activeMethodFilter,
+    activeStatusFilter,
+  } from "$lib/ws";
   import StatusIndicator from "$lib/components/StatusIndicator.svelte";
   import LogEntry from "$lib/components/LogEntry.svelte";
   import SearchInput from "$lib/components/SearchInput.svelte";
@@ -7,11 +13,20 @@
   let searchTerm = $state("");
 
   let filteredLogs = $derived(
-    $requestLog.filter(
-      (log) =>
+    $requestLog.filter((log) => {
+      const matchesSearch =
         log.path.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.method.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+        log.method.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesMethod = $activeMethodFilter ? log.method === $activeMethodFilter : true;
+
+      let matchesStatus = true;
+      if ($activeStatusFilter === "2xx") matchesStatus = log.status >= 200 && log.status < 300;
+      if ($activeStatusFilter === "4xx") matchesStatus = log.status >= 400 && log.status < 500;
+      if ($activeStatusFilter === "5xx") matchesStatus = log.status >= 500;
+
+      return matchesSearch && matchesMethod && matchesStatus;
+    })
   );
 
   function toggleExpandAll() {
@@ -88,7 +103,6 @@
     color: var(--text-secondary);
     padding: 0.4rem 1rem;
     font-size: 0.8rem;
-    font-weight: 600;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s ease;

@@ -87,12 +87,14 @@ export function parseRequest(buffer: Buffer): MockRequest | null {
   if (!requestLine) return null;
 
   const headers = parseHeaders(parts.headers);
-  const contentLengthString = headers["content-length"];
+  const transferEncoding = headers["transfer-encoding"]?.toLowerCase();
 
   let body = parts.body;
 
-  if (contentLengthString) {
-    const expectedLength = parseInt(contentLengthString, 10);
+  if (transferEncoding === "chunked") {
+    body = decodeChunkedBody(parts.body);
+  } else if (headers["content-length"]) {
+    const expectedLength = parseInt(headers["content-length"], 10);
     body = parts.body.subarray(0, expectedLength);
   }
 
@@ -116,13 +118,21 @@ export function isRequestComplete(buffer: Buffer): boolean {
   if (!parts) return false;
 
   const headers = parseHeaders(parts.headers);
+  const transferEncoding = headers["transfer-encoding"]?.toLowerCase();
   const contentLength = headers["content-length"];
 
-  // if no content-length header, assume no body
-  if (!contentLength) return true;
+  if (transferEncoding === "chunked") {
+    // A chunked stream ends with "0\r\n\r\n"
+    return parts.body.toString("utf-8").endsWith("0\r\n\r\n");
+  }
 
-  const expectedLength = parseInt(contentLength, 10);
-  return parts.body.length >= expectedLength;
+  // if no content-length header, assume no body
+  if (contentLength) {
+    const expectedLength = parseInt(contentLength, 10);
+    return parts.body.length >= expectedLength;
+  }
+
+  return true;
 }
 
 /**
@@ -133,4 +143,30 @@ export function isWebSocketUpgrade(headers: Record<string, string>): boolean {
   const connection = headers["connection"]?.toLowerCase();
 
   return upgrade === "websocket" && connection?.includes("upgrade") === true;
+}
+
+function decodeChunkedBody(buffer: Buffer): Buffer {
+  let offset = 0;
+  const chunks: Buffer[] = [];
+
+  while (offset < buffer.length) {
+    const lineEnd = buffer.indexOf("\r\n", offset);
+    if (lineEnd === -1) break;
+
+    const sizeLine = buffer.subarray(offset, lineEnd).toString("utf-8");
+    const sizeString = sizeLine.split(";")[0] || "";
+    const size = parseInt(sizeString, 16);
+
+    if (isNaN(size)) break;
+    if (size === 0) break;
+
+    // the actual data starts 2 bytes AFTER the size line (skipping the \r\n).
+    const chunkStart = lineEnd + 2;
+    const chunkEnd = chunkStart + size;
+
+    chunks.push(buffer.subarray(chunkStart, chunkEnd));
+    offset = chunkEnd + 2;
+  }
+
+  return Buffer.concat(chunks);
 }

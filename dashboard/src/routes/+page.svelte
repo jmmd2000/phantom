@@ -1,13 +1,8 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { connectToServer, requestLog, isConnected, isGlobalExpanded } from "$lib/ws";
+  import { requestLog, isConnected, isGlobalExpanded } from "$lib/ws";
   import StatusIndicator from "$lib/components/StatusIndicator.svelte";
   import LogEntry from "$lib/components/LogEntry.svelte";
   import SearchInput from "$lib/components/SearchInput.svelte";
-
-  onMount(() => {
-    connectToServer();
-  });
 
   let searchTerm = $state("");
 

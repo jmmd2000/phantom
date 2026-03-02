@@ -6,12 +6,14 @@
   import "../app.css";
   import RouteCard from "$lib/components/RouteCard.svelte";
   import RouteDialog from "$lib/components/RouteDialog.svelte";
+  import { connectToServer } from "$lib/ws";
 
   let { children }: { children: Snippet } = $props();
   let selectedRouteIndex = $state<number | null>(null);
 
   onMount(() => {
     fetchMockRoutes();
+    connectToServer();
   });
 </script>
 

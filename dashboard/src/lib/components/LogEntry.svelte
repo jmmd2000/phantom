@@ -11,7 +11,10 @@
     isExpanded = $isGlobalExpanded;
   });
 
-  const formatTime = (ts: number) => new Date(ts).toLocaleTimeString();
+  const formatTime = (ts: number) => {
+    const date = new Date(ts);
+    return date.toTimeString().split(" ")[0];
+  };
 
   const getStatusType = (status: number) => {
     if (status >= 500) return "error";

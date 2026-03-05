@@ -1,6 +1,6 @@
 {
   "name": "@jamesmddoyle/phantom",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "API mocker and traffic inspector with a built-in dashboard.",
   "author": "James Doyle",
   "license": "MIT",

@@ -11,9 +11,7 @@ import { parseCLI } from "./cli.ts";
 import { handleStaticFile } from "./static.ts";
 import { readFileSync } from "node:fs";
 
-const pkg = JSON.parse(
-  readFileSync(new URL("./package.json", import.meta.url), "utf-8"),
-);
+const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf-8"));
 export const VERSION = pkg.version;
 
 const options = parseCLI();
@@ -50,7 +48,7 @@ server.on("connection", (socket) => {
   let requestBuffer: Buffer = Buffer.alloc(0);
 
   // listen to raw data
-  socket.on("data", (chunk: Buffer) => {
+  socket.on("data", async (chunk: Buffer) => {
     // if its a websocket connection, ignore the http parser
     if (wsClients.has(socketID)) return;
 
@@ -83,77 +81,90 @@ server.on("connection", (socket) => {
               ),
             );
           }
-        } else {
-          const start = Date.now();
-          const response = handleRouting(request);
-          request.params = response.params;
-
-          const isAdmin = request.path.startsWith("/_admin/");
-          let logEntry: any = null;
-
-          if (isAdmin && request.path === "/_admin/clear" && request.method === "POST") {
-            requestHistory.length = 0;
-            console.log(styleText("yellow", "[Admin] Request history cleared"));
-          }
-
-          const methodColor = request.method === "GET" ? "blue" : "green";
-          console.log(styleText("bold", `\n[Router] `) + styleText(methodColor, request.method) + " " + styleText("white", request.path));
-
-          if (Object.keys(request.params).length > 0) {
-            console.log(styleText("dim", "  params:"), request.params);
-          }
-
-          const delay = options.delay ?? response.delay ?? 0;
-
-          if (delay > 0) {
-            console.log(styleText("yellow", `   ↳ delaying response by ${delay}ms`));
-          }
-
-          setTimeout(async () => {
-            if (socket.destroyed) return;
-
-            if (response.status === 404) {
-              const staticFile = await handleStaticFile(request.path);
-              if (staticFile) {
-                sendResponse(socket, 200, "OK", staticFile.body, staticFile.headers);
-                return;
-              }
-            }
-
-            const errorRate = options.errorRate ?? response.errorRate ?? 0;
-            const shouldError = Math.random() < errorRate;
-
-            if (!isAdmin) {
-              logEntry = {
-                id: crypto.randomUUID(),
-                method: request.method,
-                path: request.path,
-                timestamp: start,
-                headers: request.headers,
-                body: request.body.toString("utf-8"),
-                status: shouldError ? 500 : response.status,
-                duration: Date.now() - start,
-                responseBody: shouldError ? { error: "Artificial failure hit!" } : response.body,
-              };
-
-              requestHistory.push(logEntry);
-              if (requestHistory.length > 100) requestHistory.shift();
-
-              broadcast(wsClients, logEntry);
-              console.log(styleText("magenta", `   ↳ broadcasted with ${logEntry.duration}ms latency`));
-            }
-
-            if (shouldError) {
-              console.log(styleText("red", "   ↳ Artificial failure hit!"));
-              sendResponse(socket, 500, "Internal Server Error", {
-                error: "Artificial failure hit!",
-              });
-              return;
-            }
-
-            sendResponse(socket, response.status, response.message, response.body, response.headers);
-          }, delay);
+          return;
         }
+
+        // handle dashboard static files immediately
+        if (request.path.startsWith("/_dashboard") || request.path.startsWith("/_app") || request.path === "/phantom.svg") {
+          const staticFile = await handleStaticFile(request.path);
+          if (staticFile) {
+            sendResponse(socket, 200, "OK", staticFile.body, staticFile.headers);
+            requestBuffer = Buffer.alloc(0);
+            return;
+          }
+        }
+
+        // redirect root to dashboard if no root mock exists
+        if (request.path === "/") {
+          const rootResponse = handleRouting(request);
+          if (rootResponse.status === 404) {
+            sendResponse(socket, 302, "Found", "", { Location: "/_dashboard/" });
+            requestBuffer = Buffer.alloc(0);
+            return;
+          }
+        }
+
+        const start = Date.now();
+        const response = handleRouting(request);
+        request.params = response.params;
+
+        const isAdmin = request.path.startsWith("/_admin/");
+        let logEntry: any = null;
+
+        if (isAdmin && request.path === "/_admin/clear" && request.method === "POST") {
+          requestHistory.length = 0;
+          console.log(styleText("yellow", "[Admin] Request history cleared"));
+        }
+
+        const methodColor = request.method === "GET" ? "blue" : "green";
+        console.log(styleText("bold", `\n[Router] `) + styleText(methodColor, request.method) + " " + styleText("white", request.path));
+
+        if (Object.keys(request.params).length > 0) {
+          console.log(styleText("dim", "  params:"), request.params);
+        }
+
+        const delay = options.delay ?? response.delay ?? 0;
+
+        if (delay > 0) {
+          console.log(styleText("yellow", `   ↳ delaying response by ${delay}ms`));
+        }
+
+        setTimeout(async () => {
+          if (socket.destroyed) return;
+
+          const errorRate = options.errorRate ?? response.errorRate ?? 0;
+          const shouldError = Math.random() < errorRate;
+
+          if (!isAdmin) {
+            logEntry = {
+              id: crypto.randomUUID(),
+              method: request.method,
+              path: request.path,
+              timestamp: start,
+              headers: request.headers,
+              body: request.body.toString("utf-8"),
+              status: shouldError ? 500 : response.status,
+              duration: Date.now() - start,
+              responseBody: shouldError ? { error: "Artificial failure hit!" } : response.body,
+            };
+
+            requestHistory.push(logEntry);
+            if (requestHistory.length > 100) requestHistory.shift();
+
+            broadcast(wsClients, logEntry);
+            console.log(styleText("magenta", `   ↳ broadcasted with ${logEntry.duration}ms latency`));
+          }
+
+          if (shouldError) {
+            console.log(styleText("red", "   ↳ Artificial failure hit!"));
+            sendResponse(socket, 500, "Internal Server Error", {
+              error: "Artificial failure hit!",
+            });
+            return;
+          }
+
+          sendResponse(socket, response.status, response.message, response.body, response.headers);
+        }, delay);
 
         requestBuffer = Buffer.alloc(0);
       }

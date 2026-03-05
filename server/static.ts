@@ -15,26 +15,48 @@ const MIME_TYPES: Record<string, string> = {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export async function handleStaticFile(requestPath: string) {
-  let cleanPath = requestPath.split("?")[0] || "/";
-  if (cleanPath === "/") cleanPath = "/index.html";
+  const isDashboardBase = requestPath.startsWith("/_dashboard");
+  const isAppAsset = requestPath.startsWith("/_app");
+  const isPhantomSVG = requestPath === "/phantom.svg";
 
-  const buildDir = path.join(__dirname, "dashboard-ui");
-  let filePath = path.join(buildDir, cleanPath);
+  if (!isDashboardBase && !isAppAsset && !isPhantomSVG) return null;
 
-  try {
-    const content = await fs.readFile(filePath);
-    const ext = path.extname(filePath);
-    return {
-      body: content,
-      headers: { "Content-Type": MIME_TYPES[ext] || "application/octet-stream" },
-    };
-  } catch {
-    // SPA fallback, if file not found, try index.html
+  let cleanPath = requestPath;
+  if (isDashboardBase) {
+    cleanPath = requestPath.replace("/_dashboard", "");
+  }
+
+  if (cleanPath === "" || cleanPath === "/") cleanPath = "/index.html";
+
+  // check production path first, then development path
+  const paths = [path.join(__dirname, "dashboard-ui", cleanPath), path.join(__dirname, "../dashboard/build", cleanPath)];
+
+  for (const filePath of paths) {
     try {
-      const indexContent = await fs.readFile(path.join(buildDir, "index.html"));
-      return { body: indexContent, headers: { "Content-Type": "text/html" } };
+      const content = await fs.readFile(filePath);
+      const ext = path.extname(filePath);
+      return {
+        body: content,
+        headers: {
+          "Content-Type": MIME_TYPES[ext] || "application/octet-stream",
+        },
+      };
     } catch {
-      return null;
+      continue;
     }
   }
+
+  // SPA fallback for /_dashboard sub-routes
+  const fallbackPaths = [path.join(__dirname, "dashboard-ui", "index.html"), path.join(__dirname, "../dashboard/build", "index.html")];
+
+  for (const fallback of fallbackPaths) {
+    try {
+      const indexContent = await fs.readFile(fallback);
+      return { body: indexContent, headers: { "Content-Type": "text/html" } };
+    } catch {
+      continue;
+    }
+  }
+
+  return null;
 }

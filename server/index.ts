@@ -5,31 +5,60 @@ import crypto from "node:crypto";
 import { isRequestComplete, isWebSocketUpgrade, parseRequest } from "./parser.ts";
 import { sendCorsPreflightResponse, sendResponse } from "./responder.ts";
 import { handleRouting } from "./router.ts";
-import { watchConfig, setConfigPath, reloadRoutes } from "./config.ts";
+import { watchConfig, setConfigPath, reloadRoutes, writeRoutes } from "./config.ts";
 import { broadcast, encodeWsFrame, handleWebSocketHandshake, startHeartbeat } from "./ws.ts";
 import { parseCLI } from "./cli.ts";
 import { handleStaticFile } from "./static.ts";
 import { readFileSync } from "node:fs";
+import { logger } from "./logger.ts";
+import { hex, hexBg, COLOURS } from "./utils.ts";
 
 const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf-8"));
 export const VERSION = pkg.version;
 
-const options = parseCLI();
+const options = parseCLI(VERSION);
+
+if (options.command === "init") {
+  const defaultRoutes = [
+    {
+      path: "/health",
+      method: "GET",
+      status: 200,
+      body: { status: "ok", service: "phantom" },
+      enabled: true,
+      delay: 0,
+      errorRate: 0,
+      headers: {},
+    },
+  ];
+
+  writeRoutes(defaultRoutes);
+  logger.success("Created default routes.json");
+  logger.info("Run 'phantom' to start the server");
+  process.exit(0);
+}
+
 setConfigPath(options.config);
 reloadRoutes();
 
 const PORT = options.port;
 const server = net.createServer();
 
+if (options.verbose) {
+  logger.setLogLevel("verbose");
+} else if (options.quiet) {
+  logger.setLogLevel("quiet");
+}
+
 const socketManager = {
   active: new Set<net.Socket>(),
   add(socket: net.Socket) {
     this.active.add(socket);
-    console.log(styleText("dim", `Client connected. Total active: ${this.active.size}`));
+    logger.info(`Client connected. Total active: ${this.active.size}`);
   },
   remove(socket: net.Socket) {
     this.active.delete(socket);
-    console.log(styleText("dim", `Client disconnected. Total active: ${this.active.size}`));
+    logger.info(`Client disconnected. Total active: ${this.active.size}`);
   },
   destroyAll() {
     for (const socket of this.active) {
@@ -53,21 +82,20 @@ server.on("connection", (socket) => {
     if (wsClients.has(socketID)) return;
 
     requestBuffer = Buffer.concat([requestBuffer, chunk]);
-    console.log(styleText("blue", `[Parser] Received ${chunk.length} bytes. Total: ${requestBuffer.length}`));
 
     if (isRequestComplete(requestBuffer)) {
       const request = parseRequest(requestBuffer);
 
       if (request) {
         if (request.method === "OPTIONS") {
-          console.log(styleText("dim", `[CORS] Preflight ${request.path}`));
+          logger.info(`CORS Preflight ${request.path}`);
           sendCorsPreflightResponse(socket);
           requestBuffer = Buffer.alloc(0);
           return;
         }
 
         if (isWebSocketUpgrade(request.headers)) {
-          console.log(styleText(["magenta", "bold"], "[WebSocket] Handshake successful"));
+          logger.info("WebSocket Handshake successful");
           handleWebSocketHandshake(socket, request);
           wsClients.set(socketID, socket);
 
@@ -113,20 +141,13 @@ server.on("connection", (socket) => {
 
         if (isAdmin && request.path === "/_admin/clear" && request.method === "POST") {
           requestHistory.length = 0;
-          console.log(styleText("yellow", "[Admin] Request history cleared"));
-        }
-
-        const methodColor = request.method === "GET" ? "blue" : "green";
-        console.log(styleText("bold", `\n[Router] `) + styleText(methodColor, request.method) + " " + styleText("white", request.path));
-
-        if (Object.keys(request.params).length > 0) {
-          console.log(styleText("dim", "  params:"), request.params);
+          logger.admin("Request history cleared");
         }
 
         const delay = options.delay ?? response.delay ?? 0;
 
         if (delay > 0) {
-          console.log(styleText("yellow", `   ↳ delaying response by ${delay}ms`));
+          logger.info(`Delaying response by ${delay}ms`);
         }
 
         setTimeout(async () => {
@@ -152,11 +173,13 @@ server.on("connection", (socket) => {
             if (requestHistory.length > 100) requestHistory.shift();
 
             broadcast(wsClients, logEntry);
-            console.log(styleText("magenta", `   ↳ broadcasted with ${logEntry.duration}ms latency`));
+
+            // log the request
+            logger.request(request.method, logEntry.status, request.path, logEntry.duration);
           }
 
           if (shouldError) {
-            console.log(styleText("red", "   ↳ Artificial failure hit!"));
+            logger.error("Artificial failure hit!");
             sendResponse(socket, 500, "Internal Server Error", {
               error: "Artificial failure hit!",
             });
@@ -178,7 +201,7 @@ server.on("connection", (socket) => {
 
   socket.on("error", (error) => {
     if ("code" in error && error.code === "ECONNRESET") return;
-    console.error(styleText("red", `Socket error: ${error.message}`));
+    logger.error(`Socket error: ${error.message}`);
     socketManager.remove(socket);
   });
 });
@@ -186,31 +209,52 @@ server.on("connection", (socket) => {
 watchConfig(() => {
   broadcast(wsClients, { type: "CONFIG_UPDATED" });
 });
+
 startHeartbeat(wsClients);
 
 server.listen(PORT, () => {
-  console.clear();
-
-  const brand = styleText(["bgCyan", "black", "bold"], " PHANTOM ");
-  const portLabel = styleText("cyan", "port");
-  const envLabel = styleText("cyan", "env");
-  const arrow = styleText("magenta", "→");
-
-  console.log(`
-  ${brand} ${styleText("dim", `v${VERSION}`)}
-
-  ${portLabel}  ${styleText("bold", PORT.toString())}
-  ${envLabel}  ${styleText("bold", "development")}
-
-  ${arrow} ${styleText("bold", "ready")}
-  `);
+  showBanner(PORT);
 });
 
+function showBanner(PORT: number) {
+  console.clear();
+
+  const art = [
+    "      ████████      ",
+    "    ████████████    ",
+    "   ██████████████   ",
+    "  ████████████████  ",
+    "  ████  ████  ████  ",
+    "  ████████████████  ",
+    "  ████████████████  ",
+    "  ████████████████  ",
+    "  ████████████████  ",
+    "  ██   ██  ██   ██  ",
+  ];
+
+  const brand = hexBg(COLOURS.PURPLE, "PHANTOM");
+  const details = [
+    `${brand}  ${styleText("white", `v${VERSION}`)}`,
+    `port:      ${hex(COLOURS.PURPLE, PORT.toString())}`,
+    `config:    ${hex(COLOURS.PURPLE, options.config)}`,
+    `dashboard: ${hex(COLOURS.PURPLE, `http://localhost:${PORT}/_dashboard/`)}`,
+    styleText("dim", "─".repeat(44)),
+  ];
+
+  console.log("");
+  art.forEach((line, i) => {
+    // start at line 3 of the ASCII art
+    const info = details[i - 3] || "";
+    console.log(`${hex(COLOURS.PURPLE, line)}  ${info}`);
+  });
+  console.log("");
+}
+
 function shutdown() {
-  console.log(styleText("yellow", "\nShutting down Phantom..."));
+  logger.info("Shutting down Phantom...");
 
   server.close(() => {
-    console.log(styleText("green", "Server stopped"));
+    logger.success("Server stopped");
     process.exit(0);
   });
 

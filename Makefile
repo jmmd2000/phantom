@@ -14,7 +14,7 @@ publish: build
 	cd server && npm publish --access public
 
 run:
-	cd server && node ./dist/index.js --port $(PORT)
+	cd server && node ./dist/index.js --port $(PORT) $(FLAGS)
 
 clean:
 	rm -rf dashboard/build
@@ -34,3 +34,4 @@ help:
 	@echo ""
 	@echo "Variables:"
 	@echo "  PORT          - Set the port for 'make run' (default: 3001)"
+	@echo "  FLAGS         - Pass extra CLI flags (e.g., make run FLAGS=\"--quiet\")"

@@ -14,15 +14,17 @@ Phantom is a low-level API mocker and traffic inspector. Built using raw Node.js
 
 ## Installation
 
-Install Phantom via npm:
+Install Phantom globally via npm:
 
 ```bash
-npm i @jamesmddoyle/phantom
+npm i -g @jamesmddoyle/phantom
 ```
 
 ## Usage
 
-Run Phantom in any directory. It will look for a `routes.json` file by default.
+Run `phantom init` to create a starter `routes.json` file in your current directory.
+
+To start the server, run `phantom` in any directory. It will look for a `routes.json` file by default.
 
 ## CLI Options
 
@@ -30,6 +32,8 @@ Run Phantom in any directory. It will look for a `routes.json` file by default.
 - `--config`: Custom path to a routes JSON file.
 - `--delay`: Global latency override in milliseconds.
 - `--error-rate`: Global failure rate override (0.0 to 1.0).
+- `--verbose`: Show all system logs and debug information.
+- `--quiet`: Hide all non-error logs (shows only errors).
 
 ## Route Configuration
 

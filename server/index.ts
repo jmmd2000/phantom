@@ -42,7 +42,7 @@ setConfigPath(options.config);
 reloadRoutes();
 
 const PORT = options.port;
-const server = net.createServer();
+export const server = net.createServer();
 
 if (options.verbose) {
   logger.setLogLevel("verbose");
@@ -212,11 +212,20 @@ watchConfig(() => {
 
 startHeartbeat(wsClients);
 
-server.listen(PORT, () => {
-  showBanner(PORT);
-});
+export function startServer(port: number, willShowBanner: boolean ): Promise<net.Server> {
+  return new Promise((resolve) => {
+    server.listen(port, () => {
+      if (willShowBanner) showBanner(port);
+      resolve(server);
+    });
+  })
+}
 
-function showBanner(PORT: number) {
+if (import.meta.url === `file://${process.argv[1]}` || process.env.NODE_ENV !== "test"){
+   startServer(Number(options.port), true);
+}
+
+function showBanner(port: number) {
   console.clear();
 
   const art = [
@@ -235,9 +244,9 @@ function showBanner(PORT: number) {
   const brand = hexBg(COLOURS.PURPLE, "PHANTOM");
   const details = [
     `${brand}  ${styleText("white", `v${VERSION}`)}`,
-    `port:      ${hex(COLOURS.PURPLE, PORT.toString())}`,
+    `port:      ${hex(COLOURS.PURPLE, port.toString())}`,
     `config:    ${hex(COLOURS.PURPLE, options.config)}`,
-    `dashboard: ${hex(COLOURS.PURPLE, `http://localhost:${PORT}/_dashboard/`)}`,
+    `dashboard: ${hex(COLOURS.PURPLE, `http://localhost:${port}/_dashboard/`)}`,
     styleText("dim", "─".repeat(44)),
   ];
 

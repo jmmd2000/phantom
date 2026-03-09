@@ -14,6 +14,7 @@ describe("handleRouting engine", () => {
         enabled: true,
         delay: 0,
         errorRate: 0,
+        headers: {},
       },
     ];
     const req = { path: "/test/abc", method: "GET" } as MockRequest;
@@ -34,6 +35,7 @@ describe("handleRouting engine", () => {
         enabled: true,
         delay: 0,
         errorRate: 0,
+        headers: {},
       },
     ];
     const req = { path: "/something-else", method: "GET" } as MockRequest;
@@ -53,6 +55,7 @@ describe("handleRouting engine", () => {
         body: {},
         delay: 0,
         errorRate: 0,
+        headers: {},
       },
     ];
     const req = { path: "/users/123/posts/456", method: "GET" } as MockRequest;
@@ -71,6 +74,7 @@ describe("handleRouting engine", () => {
         body: {},
         delay: 0,
         errorRate: 0,
+        headers: {},
       },
     ];
     const req = { path: "/search/hello%20world", method: "GET" } as MockRequest;
@@ -89,6 +93,7 @@ describe("handleRouting engine", () => {
         errorRate: 0.5,
         enabled: true,
         body: {},
+        headers: {},
       },
     ];
     const req = { path: "/chaos", method: "GET" } as MockRequest;

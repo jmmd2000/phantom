@@ -3,11 +3,10 @@ PORT ?= 3001
 .PHONY: build clean dev test run help
 
 dev:
-	(cd dashboard && pnpm dev) & (cd server && pnpm dev)
+	pnpm dev
 
 build: clean
-	cd dashboard && pnpm run build
-	cd server && pnpm run build
+	pnpm build
 
 publish: build
 	cp README.md server/
@@ -21,7 +20,7 @@ clean:
 	rm -rf server/dist
 
 test:
-	cd server && pnpm test
+	pnpm test
 
 help:
 	@echo ""

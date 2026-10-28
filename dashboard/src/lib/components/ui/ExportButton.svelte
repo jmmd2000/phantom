@@ -1,7 +1,7 @@
 <script lang="ts">
   import { get } from "svelte/store";
   import { requestLog } from "#lib/ws.ts";
-  import { Download } from "lucide-svelte";
+  import { Download } from "@lucide/svelte";
   import Button from "./Button.svelte";
 
   function exportLogs() {

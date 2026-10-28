@@ -7,7 +7,7 @@
   import RouteCard from "#lib/components/routes/RouteCard.svelte";
   import RouteDialog from "#lib/components/routes/RouteDialog.svelte";
   import { connectToServer, activeMethodFilter, activeStatusFilter } from "#lib/ws.ts";
-  import { ChevronRight } from "lucide-svelte";
+  import { ChevronRight } from "@lucide/svelte";
   import { slide } from "svelte/transition";
 
   let { children }: { children: Snippet } = $props();

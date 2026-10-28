@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Download, Trash2, Maximize2, Minimize2 } from "lucide-svelte";
+  import { Download, Trash2, Maximize2, Minimize2 } from "@lucide/svelte";
   import {
     requestLog,
     isConnected,

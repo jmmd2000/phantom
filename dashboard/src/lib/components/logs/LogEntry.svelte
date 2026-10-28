@@ -30,7 +30,7 @@
   class:expanded={isExpanded}
   in:fly={{ y: -10, duration: 200 }}
   onclick={() => (isExpanded = !isExpanded)}
-  onkeydown={(e) => e.key === "Enter" && (isExpanded = !isExpanded)}
+  onkeydown={e => e.key === "Enter" && (isExpanded = !isExpanded)}
   role="button"
   tabindex="0"
 >
@@ -42,7 +42,7 @@
     <span class="path">{log.path}</span>
     <button
       class="copy-button"
-      onclick={(e) => {
+      onclick={e => {
         e.stopPropagation();
         onCopy(log.path);
       }}

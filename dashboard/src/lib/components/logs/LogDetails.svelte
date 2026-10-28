@@ -1,4 +1,4 @@
-  <script lang="ts">
+<script lang="ts">
   import { slide } from "svelte/transition";
   import Badge from "../ui/Badge.svelte";
 

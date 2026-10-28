@@ -1,9 +1,5 @@
 <script lang="ts">
-  let {
-    value = $bindable(0),
-    onchange,
-    id,
-  }: { value: number; onchange: () => void; id: string } = $props();
+  let { value = $bindable(0), onchange, id }: { value: number; onchange: () => void; id: string } = $props();
 
   const handleInput = (e: Event) => {
     const target = e.target as HTMLInputElement;
@@ -17,17 +13,7 @@
 </script>
 
 <div class="error-rate-wrapper">
-  <input
-    type="range"
-    min="0"
-    max="100"
-    step="1"
-    value={value * 100}
-    oninput={handleInput}
-    onchange={handleCommit}
-    class="slider"
-    {id}
-  />
+  <input type="range" min="0" max="100" step="1" value={value * 100} oninput={handleInput} onchange={handleCommit} class="slider" {id} />
   <span class="percentage">{Math.round(value * 100)}%</span>
 </div>
 

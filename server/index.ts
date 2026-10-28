@@ -70,7 +70,7 @@ const socketManager = {
 export const wsClients = new Map<string, net.Socket>();
 const requestHistory: any[] = [];
 
-server.on("connection", (socket) => {
+server.on("connection", socket => {
   socketManager.add(socket);
 
   const socketID = `${socket.remoteAddress}:${socket.remotePort}`;
@@ -105,8 +105,8 @@ server.on("connection", (socket) => {
                 JSON.stringify({
                   type: "HISTORY",
                   data: requestHistory,
-                }),
-              ),
+                })
+              )
             );
           }
           return;
@@ -199,7 +199,7 @@ server.on("connection", (socket) => {
     wsClients.delete(socketID);
   });
 
-  socket.on("error", (error) => {
+  socket.on("error", error => {
     if ("code" in error && error.code === "ECONNRESET") return;
     logger.error(`Socket error: ${error.message}`);
     socketManager.remove(socket);
@@ -212,17 +212,17 @@ watchConfig(() => {
 
 startHeartbeat(wsClients);
 
-export function startServer(port: number, willShowBanner: boolean ): Promise<net.Server> {
-  return new Promise((resolve) => {
+export function startServer(port: number, willShowBanner: boolean): Promise<net.Server> {
+  return new Promise(resolve => {
     server.listen(port, () => {
       if (willShowBanner) showBanner(port);
       resolve(server);
     });
-  })
+  });
 }
 
-if (import.meta.url === `file://${process.argv[1]}` || process.env.NODE_ENV !== "test"){
-   startServer(Number(options.port), true);
+if (import.meta.url === `file://${process.argv[1]}` || process.env.NODE_ENV !== "test") {
+  startServer(Number(options.port), true);
 }
 
 function showBanner(port: number) {

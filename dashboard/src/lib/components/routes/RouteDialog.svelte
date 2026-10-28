@@ -32,17 +32,8 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div
-  class="backdrop"
-  onmousedown={handleMouseDown}
-  onmouseup={handleMouseUp}
-  role="presentation"
->
-  <div
-    class="dialog"
-    role="dialog"
-    aria-label="Route settings for {mockRoutes.items[index].path}"
-  >
+<div class="backdrop" onmousedown={handleMouseDown} onmouseup={handleMouseUp} role="presentation">
+  <div class="dialog" role="dialog" aria-label="Route settings for {mockRoutes.items[index].path}">
     <div class="dialog-header">
       <div class="dialog-title">
         <span class="dialog-method">{mockRoutes.items[index].method}</span>
@@ -54,27 +45,16 @@
     <div class="dialog-body">
       <div class="field">
         <label class="field-label" for="delay-input">Delay</label>
-        <DelayInput
-          bind:value={mockRoutes.items[index].delay}
-          onchange={handleChange}
-          id="delay-input"
-        />
+        <DelayInput bind:value={mockRoutes.items[index].delay} onchange={handleChange} id="delay-input" />
       </div>
       <div class="field">
         <label class="field-label" for="error-rate-input">Error Rate</label>
-        <ErrorRateInput
-          bind:value={mockRoutes.items[index].errorRate}
-          onchange={handleChange}
-          id="error-rate-input"
-        />
+        <ErrorRateInput bind:value={mockRoutes.items[index].errorRate} onchange={handleChange} id="error-rate-input" />
       </div>
 
       <div class="field">
         <label class="field-label">Custom Response Headers</label>
-        <HeadersEditor
-          bind:headers={mockRoutes.items[index].headers}
-          onchange={handleChange}
-        />
+        <HeadersEditor bind:headers={mockRoutes.items[index].headers} onchange={handleChange} />
       </div>
     </div>
   </div>

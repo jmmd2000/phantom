@@ -48,19 +48,9 @@
 
     <nav class="sidebar-nav">
       <div class="nav-section">
-        <div
-          class="section-header interactive"
-          onclick={() => (isFiltersOpen = !isFiltersOpen)}
-          onkeydown={(e) => e.key === "Enter" && (isFiltersOpen = !isFiltersOpen)}
-          role="button"
-          tabindex="0"
-        >
+        <div class="section-header interactive" onclick={() => (isFiltersOpen = !isFiltersOpen)} onkeydown={e => e.key === "Enter" && (isFiltersOpen = !isFiltersOpen)} role="button" tabindex="0">
           <span class="nav-label">FILTERS</span>
-          <ChevronRight
-            size={14}
-            strokeWidth={3}
-            class="section-chevron {isFiltersOpen ? 'rotated' : ''}"
-          />
+          <ChevronRight size={14} strokeWidth={3} class="section-chevron {isFiltersOpen ? 'rotated' : ''}" />
         </div>
 
         {#if isFiltersOpen}
@@ -69,12 +59,7 @@
               <div class="filter-label">Method</div>
               <div class="filter-buttons">
                 {#each ["GET", "POST", "PUT", "PATCH", "DELETE"] as m}
-                  <button
-                    class="filter-btn"
-                    class:active={$activeMethodFilter === m}
-                    onclick={() =>
-                      activeMethodFilter.set($activeMethodFilter === m ? null : m)}
-                  >
+                  <button class="filter-btn" class:active={$activeMethodFilter === m} onclick={() => activeMethodFilter.set($activeMethodFilter === m ? null : m)}>
                     {m}
                   </button>
                 {/each}
@@ -85,12 +70,7 @@
               <div class="filter-label">Status</div>
               <div class="filter-buttons">
                 {#each ["2xx", "4xx", "5xx"] as s}
-                  <button
-                    class="filter-btn"
-                    class:active={$activeStatusFilter === s}
-                    onclick={() =>
-                      activeStatusFilter.set($activeStatusFilter === s ? null : s)}
-                  >
+                  <button class="filter-btn" class:active={$activeStatusFilter === s} onclick={() => activeStatusFilter.set($activeStatusFilter === s ? null : s)}>
                     {s}
                   </button>
                 {/each}

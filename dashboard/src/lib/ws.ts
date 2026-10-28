@@ -19,7 +19,7 @@ export function connectToServer() {
     isConnected.set(true);
   };
 
-  socket.onmessage = (event) => {
+  socket.onmessage = event => {
     try {
       const data = JSON.parse(event.data);
 
@@ -35,7 +35,7 @@ export function connectToServer() {
         return;
       }
 
-      requestLog.update((logs) => {
+      requestLog.update(logs => {
         const updated = [data, ...logs];
 
         return updated.slice(0, 1000);
@@ -52,7 +52,7 @@ export function connectToServer() {
     setTimeout(connectToServer, 3000);
   };
 
-  socket.onerror = (err) => {
+  socket.onerror = err => {
     console.error("WebSocket error:", err);
     isConnected.set(false);
     socket?.close();

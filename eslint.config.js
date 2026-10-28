@@ -28,7 +28,10 @@ export default defineConfig(
     files: ["**/*.ts", "**/*.svelte", "**/*.svelte.ts", "**/*.svelte.js"],
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        projectService: {
+          // The root Vitest config sits outside every tsconfig.
+          allowDefaultProject: ["vitest.config.ts"],
+        },
         extraFileExtensions: [".svelte"],
         parser: ts.parser,
       },

@@ -10,7 +10,7 @@
     "directory": "server"
   },
   "bin": {
-    "phantom": "./dist/index.js"
+    "phantom": "dist/index.js"
   },
   "files": [
     "dist",

@@ -35,7 +35,7 @@ export function reloadRoutes() {
     const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
     activeRoutes = JSON.parse(raw);
     console.log(styleText("blue", `[Config] Successfully reloaded ${activeRoutes.length} routes from ${path.basename(CONFIG_PATH)}`));
-  } catch (error) {
+  } catch {
     console.error(styleText("red", `[Config] Error reloading ${CONFIG_PATH}. Keeping previous version.`));
   }
 }

@@ -41,7 +41,6 @@ if (options.command === "init") {
 setConfigPath(options.config);
 reloadRoutes();
 
-const PORT = options.port;
 export const server = net.createServer();
 
 if (options.verbose) {

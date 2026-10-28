@@ -3,6 +3,7 @@
 </script>
 
 <button
+  type="button"
   class="toggle"
   class:active={checked}
   onclick={() => {

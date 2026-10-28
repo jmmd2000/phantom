@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import { mockRoutes, saveRoutes, type RouteConfig } from "#lib/routes.svelte.ts";
+  import { mockRoutes, saveRoutes } from "#lib/routes.svelte.ts";
   import DelayInput from "./DelayInput.svelte";
   import ErrorRateInput from "./ErrorRateInput.svelte";
   import HeadersEditor from "./HeadersEditor.svelte";
@@ -39,7 +39,7 @@
         <span class="dialog-method">{mockRoutes.items[index].method}</span>
         <span class="dialog-path">{mockRoutes.items[index].path}</span>
       </div>
-      <button class="close-button" onclick={onclose}>&times;</button>
+      <button type="button" class="close-button" onclick={onclose}>&times;</button>
     </div>
 
     <div class="dialog-body">

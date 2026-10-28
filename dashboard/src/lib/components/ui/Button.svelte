@@ -20,7 +20,7 @@
   } = $props();
 </script>
 
-<button class="button variant-{variant} {className}" class:active {onclick} {title}>
+<button type="button" class="button variant-{variant} {className}" class:active {onclick} {title}>
   {#if icon}
     <span class="button-icon">{@render icon()}</span>
   {/if}

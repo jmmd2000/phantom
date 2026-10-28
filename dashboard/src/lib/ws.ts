@@ -27,7 +27,6 @@ export function connectToServer() {
   socket = new WebSocket("ws://localhost:3001");
 
   socket.onopen = () => {
-    console.log("[Phantom] Connected to live stream");
     isConnected.set(true);
   };
 
@@ -58,7 +57,7 @@ export function connectToServer() {
   };
 
   socket.onclose = () => {
-    console.log("[Phantom] Connection lost. Retrying in 3s...");
+    console.warn("[Phantom] Connection lost. Retrying in 3s...");
     isConnected.set(false);
     socket = null;
     setTimeout(connectToServer, 3000);

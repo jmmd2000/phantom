@@ -19,7 +19,7 @@
       <div class="section-content">
         <h5 class="sub-label">Headers</h5>
         <div class="headers-grid">
-          {#each Object.entries(log.headers ?? {}) as [key, val]}
+          {#each Object.entries(log.headers ?? {}) as [key, val] (key)}
             <span class="header-key">{key}:</span>
             <span class="header-val">{val}</span>
           {/each}

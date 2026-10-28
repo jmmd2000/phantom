@@ -51,5 +51,12 @@ export default defineConfig(
       "no-console": ["error", { allow: ["warn", "error"] }],
       "@typescript-eslint/no-non-null-assertion": "error",
     },
+  },
+  {
+    // The server is a terminal app, so writing to the console is its job.
+    files: ["server/**/*.ts"],
+    rules: {
+      "no-console": "off",
+    },
   }
 );

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Download, Trash2, Maximize2, Minimize2 } from "@lucide/svelte";
+  import { Trash2, Maximize2, Minimize2 } from "@lucide/svelte";
   import { requestLog, isConnected, isGlobalExpanded, activeMethodFilter, activeStatusFilter } from "#lib/ws.ts";
   import StatusIndicator from "#lib/components/ui/StatusIndicator.svelte";
   import LogEntry from "#lib/components/logs/LogEntry.svelte";

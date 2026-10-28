@@ -6,12 +6,7 @@
   import Badge from "../ui/Badge.svelte";
   let { log, onCopy }: { log: RequestLogEntry; onCopy: (path: string) => void } = $props();
 
-  let isExpanded = $state(false);
-
-  // Sync with global store toggle
-  $effect(() => {
-    isExpanded = $isGlobalExpanded;
-  });
+  let isExpanded = $derived($isGlobalExpanded);
 
   const formatTime = (ts: number) => {
     const date = new Date(ts);
@@ -41,6 +36,7 @@
     <Badge type={log.method} label={log.method} />
     <span class="path">{log.path}</span>
     <button
+      type="button"
       class="copy-button"
       onclick={e => {
         e.stopPropagation();

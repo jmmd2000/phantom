@@ -27,7 +27,7 @@
   <div class="route-header">
     <span class="route-path">{route.path}</span>
     <div class="route-controls">
-      <button class="settings-button" class:modified={isModified} onclick={onopen} aria-label="Route settings">
+      <button type="button" class="settings-button" class:modified={isModified} onclick={onopen} aria-label="Route settings">
         <Settings size={16} />
       </button>
       <Toggle bind:checked={mockRoutes.items[index].enabled} onchange={handleToggle} />

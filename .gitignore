@@ -17,6 +17,10 @@ Thumbs.db
 # Config
 server/routes.json
 
+# Copied in by make publish
+server/README.md
+server/LICENSE
+
 # Env
 .env
 .env.*

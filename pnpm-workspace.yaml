@@ -1,5 +1,7 @@
 packages:
   - "server"
   - "dashboard"
-onlyBuiltDependencies:
-  - esbuild
+saveExact: true
+engineStrict: true
+allowBuilds:
+  esbuild: true

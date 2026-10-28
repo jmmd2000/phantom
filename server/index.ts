@@ -39,7 +39,6 @@ if (options.command === "init") {
 }
 
 setConfigPath(options.config);
-reloadRoutes();
 
 export const server = net.createServer();
 
@@ -235,6 +234,8 @@ export function startServer(port: number, willShowBanner: boolean): Promise<net.
 
 if (import.meta.url === `file://${process.argv[1]}` || process.env.NODE_ENV !== "test") {
   await startServer(Number(options.port), true);
+  // The banner clears the screen, so load the routes after it to keep their log line visible.
+  reloadRoutes();
 }
 
 function showBanner(port: number) {

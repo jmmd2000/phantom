@@ -25,13 +25,16 @@ export function getActiveRoutes() {
   return activeRoutes;
 }
 
+/**
+ * Loads the routes from the routes file. When the file is missing, it keeps the current routes.
+ */
 export function reloadRoutes() {
-  try {
-    if (!fs.existsSync(CONFIG_PATH)) {
-      activeRoutes = [];
-      return;
-    }
+  if (!fs.existsSync(CONFIG_PATH)) {
+    console.log(styleText("yellow", `[Config] No routes file found at ${CONFIG_PATH}. Run "phantom init" to create one.`));
+    return;
+  }
 
+  try {
     const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
     activeRoutes = JSON.parse(raw);
     console.log(styleText("blue", `[Config] Successfully reloaded ${activeRoutes.length} routes from ${path.basename(CONFIG_PATH)}`));
@@ -42,18 +45,24 @@ export function reloadRoutes() {
 
 let watchTimeout: NodeJS.Timeout | null = null;
 
+/**
+ * Reloads the routes when the routes file is created, changed or deleted.
+ */
 export function watchConfig(onReload: () => void) {
-  fs.watch(CONFIG_PATH, eventType => {
-    if (eventType === "change") {
-      // editors could run multiple "change" events, debounce them
-      if (watchTimeout) clearTimeout(watchTimeout);
+  const fileName = path.basename(CONFIG_PATH);
 
-      watchTimeout = setTimeout(() => {
-        reloadRoutes();
-        onReload();
-        watchTimeout = null;
-      }, 300);
-    }
+  // Watch the folder, not the file, because fs.watch fails on a file that doesn't exist yet.
+  fs.watch(path.dirname(CONFIG_PATH), (_eventType, changedFile) => {
+    if (changedFile !== fileName) return;
+
+    // Editors can send more than one event for one save, so wait for them to stop.
+    if (watchTimeout) clearTimeout(watchTimeout);
+
+    watchTimeout = setTimeout(() => {
+      reloadRoutes();
+      onReload();
+      watchTimeout = null;
+    }, 300);
   });
 }
 
@@ -61,5 +70,3 @@ export function writeRoutes(routes: RouteConfig[]) {
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(routes, null, 2), "utf-8");
   console.log(styleText("blue", `[Config] Wrote ${routes.length} routes to ${path.basename(CONFIG_PATH)}`));
 }
-
-reloadRoutes();

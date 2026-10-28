@@ -9,7 +9,6 @@ const serverProject = { root: serverRoot };
 const serverTest = {
   expect: { requireAssertions: true },
   environment: "node",
-  setupFiles: ["./__tests__/vitest.setup.ts"],
 };
 
 export default defineConfig({

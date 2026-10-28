@@ -15,13 +15,11 @@
   "scripts": {
     "build": "rm -rf dist && tsc && cp package.json ./dist/ && cp -r ../dashboard/build ./dist/dashboard-ui",
     "dev": "node --watch --experimental-strip-types index.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run --exclude \"dist/**\""
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/node": "26.6.6",
-    "typescript": "6.0.3",
-    "vitest": "5.0.5"
+    "typescript": "6.0.3"
   },
   "dependencies": {
     "cac": "7.1.0"

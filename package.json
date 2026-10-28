@@ -10,13 +10,16 @@
     "node": "26.x"
   },
   "scripts": {
+    "prepare": "husky",
     "dev": "pnpm --recursive --parallel dev",
     "build": "pnpm --filter ./dashboard build && pnpm --filter ./server build",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check . && eslint .",
     "typecheck": "pnpm --recursive typecheck",
-    "test": "pnpm --filter ./server test"
+    "test:unit": "vitest run --project server-unit",
+    "test:integration": "vitest run --project server-integration",
+    "test": "pnpm test:unit && pnpm test:integration"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -24,8 +27,11 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-svelte": "3.23.1",
     "globals": "17.13.0",
+    "husky": "9.1.7",
+    "lint-staged": "17.6.0",
     "prettier": "3.9.10",
     "prettier-plugin-svelte": "4.1.1",
-    "typescript-eslint": "8.72.1"
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.0.5"
   }
 }

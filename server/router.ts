@@ -13,6 +13,10 @@ export interface MockResponse {
 }
 
 export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]): MockResponse {
+  if (!hasValidEncoding(request.path)) {
+    return { status: 400, message: "Bad Request", body: { error: `Path ${request.path} has invalid percent-encoding` }, params: {} };
+  }
+
   if (request.path === "/_admin/version" && request.method === "GET") {
     return { status: 200, message: "OK", body: { version: VERSION }, params: {} };
   }
@@ -59,11 +63,32 @@ export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]
 }
 
 /**
+ * Checks that the path part of a request path can be percent-decoded.
+ */
+function hasValidEncoding(requestPath: string) {
+  try {
+    decodeURIComponent(requestPath.split("?")[0] ?? "");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Escapes the characters that have a special meaning in a regular expression.
+ */
+function escapeRegExp(text: string) {
+  // "$&" puts back the character that matched, after the backslash.
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
  * Matches a request path against a pattern like /users/:id.
+ * Everything except the :params matches literally.
  */
 function matchPath(pattern: string, actualPath: string) {
   const paramNames: string[] = [];
-  const regexPath = pattern.replace(/:([a-zA-Z0-9_]+)/g, (_, name) => {
+  const regexPath = escapeRegExp(pattern).replace(/:([a-zA-Z0-9_]+)/g, (_, name) => {
     paramNames.push(name);
     return "([^/]+)";
   });

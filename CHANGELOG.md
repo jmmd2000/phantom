@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-10-28
+
+### Fixed
+
+- A request that fails while being handled gets a 500 instead of stopping the server.
+- A path with invalid percent-encoding gets a 400.
+- Route paths match characters such as `.` and `(` literally.
+
 ## [0.2.5] - 2026-10-28
 
 ### Fixed
@@ -62,7 +70,8 @@
 - A dashboard with a live request feed, search and filters, request and response details, log export and route settings.
 - CLI flags for the port, the routes file, and a global delay and error rate.
 
-[Unreleased]: https://github.com/jmmd2000/phantom/compare/v0.2.5...HEAD
+[Unreleased]: https://github.com/jmmd2000/phantom/compare/v0.2.6...HEAD
+[0.2.6]: https://github.com/jmmd2000/phantom/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/jmmd2000/phantom/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/jmmd2000/phantom/compare/v0.2.1...v0.2.4
 [0.2.1]: https://github.com/jmmd2000/phantom/compare/v0.2.0...v0.2.1

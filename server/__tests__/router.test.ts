@@ -83,6 +83,62 @@ describe("handleRouting engine", () => {
     expect(result.params.query).toBe("hello world");
   });
 
+  it("answers 400 for a path with invalid percent-encoding", () => {
+    const mockRoutes: RouteConfig[] = [
+      {
+        path: "/users/:id",
+        method: "GET",
+        status: 200,
+        enabled: true,
+        body: {},
+        delay: 0,
+        errorRate: 0,
+        headers: {},
+      },
+    ];
+    const req = { path: "/users/%E0", method: "GET" } as MockRequest;
+
+    const result = handleRouting(req, mockRoutes);
+    expect(result.status).toBe(400);
+  });
+
+  it("matches a dot in a route path literally", () => {
+    const mockRoutes: RouteConfig[] = [
+      {
+        path: "/v1.0/status",
+        method: "GET",
+        status: 200,
+        enabled: true,
+        body: {},
+        delay: 0,
+        errorRate: 0,
+        headers: {},
+      },
+    ];
+
+    expect(handleRouting({ path: "/v1.0/status", method: "GET" } as MockRequest, mockRoutes).status).toBe(200);
+    expect(handleRouting({ path: "/v1x0/status", method: "GET" } as MockRequest, mockRoutes).status).toBe(404);
+  });
+
+  it("matches brackets in a route path literally", () => {
+    const mockRoutes: RouteConfig[] = [
+      {
+        path: "/files/(draft)",
+        method: "GET",
+        status: 200,
+        enabled: true,
+        body: {},
+        delay: 0,
+        errorRate: 0,
+        headers: {},
+      },
+    ];
+    const req = { path: "/files/(draft)", method: "GET" } as MockRequest;
+
+    const result = handleRouting(req, mockRoutes);
+    expect(result.status).toBe(200);
+  });
+
   it("extracts chaos settings (delay/errorRate)", () => {
     const mockRoutes: RouteConfig[] = [
       {

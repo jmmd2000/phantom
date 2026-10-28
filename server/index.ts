@@ -86,9 +86,9 @@ server.on("connection", socket => {
   const socketID = `${socket.remoteAddress}:${socket.remotePort}`;
   let requestBuffer: Buffer = Buffer.alloc(0);
 
-  // listen to raw data
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises -- Nothing catches errors in this handler, so one bad request can stop the server.
-  socket.on("data", async (chunk: Buffer) => {
+  let currentRequest = "";
+
+  async function handleData(chunk: Buffer) {
     // if its a websocket connection, ignore the http parser
     if (wsClients.has(socketID)) return;
 
@@ -98,6 +98,8 @@ server.on("connection", socket => {
       const request = parseRequest(requestBuffer);
 
       if (request) {
+        currentRequest = `${request.method} ${request.path}`;
+
         if (request.method === "OPTIONS") {
           logger.info(`CORS Preflight ${request.path}`);
           sendCorsPreflightResponse(socket);
@@ -148,7 +150,6 @@ server.on("connection", socket => {
         request.params = response.params;
 
         const isAdmin = request.path.startsWith("/_admin/");
-        let logEntry: RequestLogEntry | null = null;
 
         if (isAdmin && request.path === "/_admin/clear" && request.method === "POST") {
           requestHistory.length = 0;
@@ -157,52 +158,60 @@ server.on("connection", socket => {
 
         const delay = options.delay ?? response.delay ?? 0;
 
+        requestBuffer = Buffer.alloc(0);
+
         if (delay > 0) {
           logger.info(`Delaying response by ${delay}ms`);
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
 
-        setTimeout(() => {
-          if (socket.destroyed) return;
+        if (socket.destroyed) return;
 
-          const errorRate = options.errorRate ?? response.errorRate ?? 0;
-          const shouldError = Math.random() < errorRate;
+        const errorRate = options.errorRate ?? response.errorRate ?? 0;
+        const shouldError = Math.random() < errorRate;
 
-          if (!isAdmin) {
-            logEntry = {
-              id: crypto.randomUUID(),
-              method: request.method,
-              path: request.path,
-              timestamp: start,
-              headers: request.headers,
-              body: request.body.toString("utf-8"),
-              status: shouldError ? 500 : response.status,
-              duration: Date.now() - start,
-              responseBody: shouldError ? { error: "Artificial failure hit!" } : response.body,
-            };
+        if (!isAdmin) {
+          const logEntry: RequestLogEntry = {
+            id: crypto.randomUUID(),
+            method: request.method,
+            path: request.path,
+            timestamp: start,
+            headers: request.headers,
+            body: request.body.toString("utf-8"),
+            status: shouldError ? 500 : response.status,
+            duration: Date.now() - start,
+            responseBody: shouldError ? { error: "Artificial failure hit!" } : response.body,
+          };
 
-            requestHistory.push(logEntry);
-            if (requestHistory.length > 100) requestHistory.shift();
+          requestHistory.push(logEntry);
+          if (requestHistory.length > 100) requestHistory.shift();
 
-            broadcast(wsClients, logEntry);
+          broadcast(wsClients, logEntry);
 
-            // log the request
-            logger.request(request.method, logEntry.status, request.path, logEntry.duration);
-          }
+          logger.request(request.method, logEntry.status, request.path, logEntry.duration);
+        }
 
-          if (shouldError) {
-            logger.error("Artificial failure hit!");
-            sendResponse(socket, 500, "Internal Server Error", {
-              error: "Artificial failure hit!",
-            });
-            return;
-          }
+        if (shouldError) {
+          logger.error("Artificial failure hit!");
+          sendResponse(socket, 500, "Internal Server Error", {
+            error: "Artificial failure hit!",
+          });
+          return;
+        }
 
-          sendResponse(socket, response.status, response.message, response.body, response.headers);
-        }, delay);
-
-        requestBuffer = Buffer.alloc(0);
+        sendResponse(socket, response.status, response.message, response.body, response.headers);
       }
     }
+  }
+
+  socket.on("data", (chunk: Buffer) => {
+    handleData(chunk).catch((error: unknown) => {
+      requestBuffer = Buffer.alloc(0);
+      logger.error(`Failed to handle ${currentRequest || "a request"}`, error);
+
+      if (socket.writableEnded || socket.destroyed) return;
+      sendResponse(socket, 500, "Internal Server Error", { error: "Internal server error" });
+    });
   });
 
   socket.on("close", () => {

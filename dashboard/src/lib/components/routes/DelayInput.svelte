@@ -1,9 +1,5 @@
 <script lang="ts">
-  let {
-    value = $bindable(0),
-    onchange,
-    id,
-  }: { value?: number; onchange?: () => void; id?: string } = $props();
+  let { value = $bindable(0), onchange, id }: { value?: number; onchange?: () => void; id?: string } = $props();
 </script>
 
 <div class="delay-input">

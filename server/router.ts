@@ -5,7 +5,7 @@ import { VERSION } from "./index.ts";
 export interface MockResponse {
   status: number;
   message: string;
-  body: any;
+  body: unknown;
   params: Record<string, string>;
   delay?: number;
   errorRate?: number;

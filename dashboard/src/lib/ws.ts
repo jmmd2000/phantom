@@ -1,7 +1,19 @@
 import { writable } from "svelte/store";
 import { fetchMockRoutes } from "./routes.svelte";
 
-export const requestLog = writable<any[]>([]);
+export interface RequestLogEntry {
+  id: string;
+  method: string;
+  path: string;
+  timestamp: number;
+  headers: Record<string, string>;
+  body: string;
+  status: number;
+  duration: number;
+  responseBody: unknown;
+}
+
+export const requestLog = writable<RequestLogEntry[]>([]);
 export const isConnected = writable(false);
 export const isGlobalExpanded = writable(false);
 export const activeMethodFilter = writable<string | null>(null);
@@ -15,11 +27,10 @@ export function connectToServer() {
   socket = new WebSocket("ws://localhost:3001");
 
   socket.onopen = () => {
-    console.log("[Phantom] Connected to live stream");
     isConnected.set(true);
   };
 
-  socket.onmessage = (event) => {
+  socket.onmessage = event => {
     try {
       const data = JSON.parse(event.data);
 
@@ -31,11 +42,11 @@ export function connectToServer() {
       }
 
       if (data.type === "CONFIG_UPDATED") {
-        fetchMockRoutes();
+        void fetchMockRoutes();
         return;
       }
 
-      requestLog.update((logs) => {
+      requestLog.update(logs => {
         const updated = [data, ...logs];
 
         return updated.slice(0, 1000);
@@ -46,13 +57,13 @@ export function connectToServer() {
   };
 
   socket.onclose = () => {
-    console.log("[Phantom] Connection lost. Retrying in 3s...");
+    console.warn("[Phantom] Connection lost. Retrying in 3s...");
     isConnected.set(false);
     socket = null;
     setTimeout(connectToServer, 3000);
   };
 
-  socket.onerror = (err) => {
+  socket.onerror = err => {
     console.error("WebSocket error:", err);
     isConnected.set(false);
     socket?.close();

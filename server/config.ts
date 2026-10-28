@@ -12,7 +12,7 @@ export interface RouteConfig {
   path: string;
   method: string;
   status: number;
-  body: any;
+  body: unknown;
   enabled: boolean;
   delay: number;
   errorRate: number;
@@ -35,7 +35,7 @@ export function reloadRoutes() {
     const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
     activeRoutes = JSON.parse(raw);
     console.log(styleText("blue", `[Config] Successfully reloaded ${activeRoutes.length} routes from ${path.basename(CONFIG_PATH)}`));
-  } catch (error) {
+  } catch {
     console.error(styleText("red", `[Config] Error reloading ${CONFIG_PATH}. Keeping previous version.`));
   }
 }
@@ -43,7 +43,7 @@ export function reloadRoutes() {
 let watchTimeout: NodeJS.Timeout | null = null;
 
 export function watchConfig(onReload: () => void) {
-  fs.watch(CONFIG_PATH, (eventType) => {
+  fs.watch(CONFIG_PATH, eventType => {
     if (eventType === "change") {
       // editors could run multiple "change" events, debounce them
       if (watchTimeout) clearTimeout(watchTimeout);

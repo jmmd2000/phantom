@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import * as net from "node:net";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { startServer, server } from "../index.ts";
@@ -67,7 +66,7 @@ describe("Chaos Engine Integration", () => {
 
     const res = await fetch(`${baseURL}/fail`);
     expect(res.status).toBe(500);
-    const data: any = await res.json();
+    const data = (await res.json()) as { error: string };
     expect(data.error).toContain("Artificial failure hit!");
   });
 

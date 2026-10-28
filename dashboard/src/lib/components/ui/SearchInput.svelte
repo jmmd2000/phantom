@@ -1,18 +1,11 @@
 <script lang="ts">
-  let { value = $bindable("") } = $props();
+  let { value = $bindable("") }: { value?: string } = $props();
 </script>
 
 <div class="search-container">
-  <input
-    type="text"
-    placeholder="Filter by path or method..."
-    bind:value
-    class="search-input"
-  />
+  <input type="text" placeholder="Filter by path or method..." bind:value class="search-input" />
   {#if value}
-    <button class="clear-search" onclick={() => (value = "")} title="Clear search">
-      &times;
-    </button>
+    <button type="button" class="clear-search" onclick={() => (value = "")} title="Clear search"> &times; </button>
   {/if}
 </div>
 

@@ -41,7 +41,6 @@ if (options.command === "init") {
 setConfigPath(options.config);
 reloadRoutes();
 
-const PORT = options.port;
 export const server = net.createServer();
 
 if (options.verbose) {
@@ -67,16 +66,29 @@ const socketManager = {
   },
 };
 
-export const wsClients = new Map<string, net.Socket>();
-const requestHistory: any[] = [];
+interface RequestLogEntry {
+  id: string;
+  method: string;
+  path: string;
+  timestamp: number;
+  headers: Record<string, string>;
+  body: string;
+  status: number;
+  duration: number;
+  responseBody: unknown;
+}
 
-server.on("connection", (socket) => {
+export const wsClients = new Map<string, net.Socket>();
+const requestHistory: RequestLogEntry[] = [];
+
+server.on("connection", socket => {
   socketManager.add(socket);
 
   const socketID = `${socket.remoteAddress}:${socket.remotePort}`;
   let requestBuffer: Buffer = Buffer.alloc(0);
 
   // listen to raw data
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises -- Nothing catches errors in this handler, so one bad request can stop the server.
   socket.on("data", async (chunk: Buffer) => {
     // if its a websocket connection, ignore the http parser
     if (wsClients.has(socketID)) return;
@@ -105,8 +117,8 @@ server.on("connection", (socket) => {
                 JSON.stringify({
                   type: "HISTORY",
                   data: requestHistory,
-                }),
-              ),
+                })
+              )
             );
           }
           return;
@@ -137,7 +149,7 @@ server.on("connection", (socket) => {
         request.params = response.params;
 
         const isAdmin = request.path.startsWith("/_admin/");
-        let logEntry: any = null;
+        let logEntry: RequestLogEntry | null = null;
 
         if (isAdmin && request.path === "/_admin/clear" && request.method === "POST") {
           requestHistory.length = 0;
@@ -150,7 +162,7 @@ server.on("connection", (socket) => {
           logger.info(`Delaying response by ${delay}ms`);
         }
 
-        setTimeout(async () => {
+        setTimeout(() => {
           if (socket.destroyed) return;
 
           const errorRate = options.errorRate ?? response.errorRate ?? 0;
@@ -199,7 +211,7 @@ server.on("connection", (socket) => {
     wsClients.delete(socketID);
   });
 
-  socket.on("error", (error) => {
+  socket.on("error", error => {
     if ("code" in error && error.code === "ECONNRESET") return;
     logger.error(`Socket error: ${error.message}`);
     socketManager.remove(socket);
@@ -212,17 +224,17 @@ watchConfig(() => {
 
 startHeartbeat(wsClients);
 
-export function startServer(port: number, willShowBanner: boolean ): Promise<net.Server> {
-  return new Promise((resolve) => {
+export function startServer(port: number, willShowBanner: boolean): Promise<net.Server> {
+  return new Promise(resolve => {
     server.listen(port, () => {
       if (willShowBanner) showBanner(port);
       resolve(server);
     });
-  })
+  });
 }
 
-if (import.meta.url === `file://${process.argv[1]}` || process.env.NODE_ENV !== "test"){
-   startServer(Number(options.port), true);
+if (import.meta.url === `file://${process.argv[1]}` || process.env.NODE_ENV !== "test") {
+  await startServer(Number(options.port), true);
 }
 
 function showBanner(port: number) {

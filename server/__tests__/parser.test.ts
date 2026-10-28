@@ -16,7 +16,7 @@ describe("isHeaderComplete", () => {
 describe("isRequestComplete", () => {
   it("returns false for incomplete chunked stream", () => {
     const raw = Buffer.from(
-      "POST / HTTP/1.1\r\n" + "Transfer-Encoding: chunked\r\n" + "\r\n" + "5\r\nHello\r\n", // No ending 0\r\n\r\n
+      "POST / HTTP/1.1\r\n" + "Transfer-Encoding: chunked\r\n" + "\r\n" + "5\r\nHello\r\n" // No ending 0\r\n\r\n
     );
     expect(isRequestComplete(raw)).toBe(false);
   });
@@ -93,7 +93,7 @@ describe("parseRequest", () => {
         "Host: localhost:3001\r\n" +
         "User-Agent:  Mozilla/5.0  \r\n" + // Extra spaces
         "X-Custom-Data: value:with:colons\r\n" + // Colons in value
-        "\r\n",
+        "\r\n"
     );
 
     const result = parseRequest(raw);
@@ -111,7 +111,7 @@ describe("parseRequest", () => {
 
   it("slices the body to exactly match Content-Length", () => {
     const raw = Buffer.from(
-      "POST / HTTP/1.1\r\n" + "Content-Length: 5\r\n" + "\r\n" + "HELLO_EXTRA_DATA", // 5 bytes is "HELLO", the rest should be ignored
+      "POST / HTTP/1.1\r\n" + "Content-Length: 5\r\n" + "\r\n" + "HELLO_EXTRA_DATA" // 5 bytes is "HELLO", the rest should be ignored
     );
 
     const result = parseRequest(raw);

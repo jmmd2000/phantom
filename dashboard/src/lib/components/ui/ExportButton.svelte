@@ -14,10 +14,7 @@
 
     const a = document.createElement("a");
     a.href = url;
-    const timestamp = new Date()
-      .toISOString()
-      .replace(/[:.]/g, "-")
-      .slice(0, 19);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
     a.download = `phantom-logs-${timestamp}.json`;
     a.click();
 

@@ -1,9 +1,9 @@
 <script lang="ts">
-  let { checked = $bindable(true), onchange }: { checked?: boolean; onchange?: () => void } =
-    $props();
+  let { checked = $bindable(true), onchange }: { checked?: boolean; onchange?: () => void } = $props();
 </script>
 
 <button
+  type="button"
   class="toggle"
   class:active={checked}
   onclick={() => {

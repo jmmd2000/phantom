@@ -8,13 +8,11 @@
   } = $props();
 
   // Local UI state for rows to handle reactivity smoothly
-  let rows = $state(
-    Object.entries(headers).map(([key, value]) => ({ key, value })),
-  );
+  const rows = $state(Object.entries(headers).map(([key, value]) => ({ key, value })));
 
   const handleHeaderChange = () => {
     const newHeaders: Record<string, string> = {};
-    rows.forEach((row) => {
+    rows.forEach(row => {
       if (row.key.trim()) {
         newHeaders[row.key.trim()] = row.value;
       }
@@ -34,34 +32,16 @@
 </script>
 
 <div class="headers-list">
-  {#each rows as row, i}
+  {#each rows as row, i (i)}
     <div class="header-row">
-      <input
-        type="text"
-        placeholder="Header-Name"
-        bind:value={row.key}
-        onchange={handleHeaderChange}
-        class="header-input"
-      />
+      <input type="text" placeholder="Header-Name" bind:value={row.key} onchange={handleHeaderChange} class="header-input" />
       <span class="separator">:</span>
-      <input
-        type="text"
-        placeholder="value"
-        bind:value={row.value}
-        onchange={handleHeaderChange}
-        class="header-input"
-      />
-      <button
-        class="remove-header"
-        onclick={() => removeHeader(i)}
-        title="Remove header"
-      >
-        &times;
-      </button>
+      <input type="text" placeholder="value" bind:value={row.value} onchange={handleHeaderChange} class="header-input" />
+      <button type="button" class="remove-header" onclick={() => removeHeader(i)} title="Remove header"> &times; </button>
     </div>
   {/each}
 
-  <button class="add-header-btn" onclick={addHeader}> + Add Header </button>
+  <button type="button" class="add-header-btn" onclick={addHeader}> + Add Header </button>
 </div>
 
 <style>

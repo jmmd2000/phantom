@@ -70,7 +70,7 @@ class Logger {
   /**
    * Log an error, always shows regardless of log level.
    */
-  error(message: string, error?: any) {
+  error(message: string, error?: unknown) {
     console.error(`${styleText("red", "[Error] ")} ${message}`);
     if (error) console.error(error);
   }

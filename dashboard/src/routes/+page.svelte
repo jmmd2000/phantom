@@ -1,12 +1,6 @@
 <script lang="ts">
-  import { Download, Trash2, Maximize2, Minimize2 } from "@lucide/svelte";
-  import {
-    requestLog,
-    isConnected,
-    isGlobalExpanded,
-    activeMethodFilter,
-    activeStatusFilter,
-  } from "#lib/ws.ts";
+  import { Trash2, Maximize2, Minimize2 } from "@lucide/svelte";
+  import { requestLog, isConnected, isGlobalExpanded, activeMethodFilter, activeStatusFilter } from "#lib/ws.ts";
   import StatusIndicator from "#lib/components/ui/StatusIndicator.svelte";
   import LogEntry from "#lib/components/logs/LogEntry.svelte";
   import SearchInput from "#lib/components/ui/SearchInput.svelte";
@@ -16,7 +10,7 @@
   let searchTerm = $state("");
 
   let filteredLogs = $derived(
-    $requestLog.filter((log) => {
+    $requestLog.filter(log => {
       const matchesSearch =
         log.path.toLowerCase().includes(searchTerm.toLowerCase()) ||
         log.method.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -35,7 +29,7 @@
   );
 
   function toggleExpandAll() {
-    isGlobalExpanded.update((v) => !v);
+    isGlobalExpanded.update(v => !v);
   }
 
   async function clearLogs() {

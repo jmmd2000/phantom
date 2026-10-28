@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import { mockRoutes, saveRoutes, type RouteConfig } from "#lib/routes.svelte.ts";
+  import { mockRoutes, saveRoutes } from "#lib/routes.svelte.ts";
   import DelayInput from "./DelayInput.svelte";
   import ErrorRateInput from "./ErrorRateInput.svelte";
   import HeadersEditor from "./HeadersEditor.svelte";
@@ -9,7 +9,7 @@
 
   const handleChange = async () => {
     await tick();
-    saveRoutes();
+    await saveRoutes();
   };
 
   let clickStartedOnBackdrop = false;
@@ -32,49 +32,29 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div
-  class="backdrop"
-  onmousedown={handleMouseDown}
-  onmouseup={handleMouseUp}
-  role="presentation"
->
-  <div
-    class="dialog"
-    role="dialog"
-    aria-label="Route settings for {mockRoutes.items[index].path}"
-  >
+<div class="backdrop" onmousedown={handleMouseDown} onmouseup={handleMouseUp} role="presentation">
+  <div class="dialog" role="dialog" aria-label="Route settings for {mockRoutes.items[index].path}">
     <div class="dialog-header">
       <div class="dialog-title">
         <span class="dialog-method">{mockRoutes.items[index].method}</span>
         <span class="dialog-path">{mockRoutes.items[index].path}</span>
       </div>
-      <button class="close-button" onclick={onclose}>&times;</button>
+      <button type="button" class="close-button" onclick={onclose}>&times;</button>
     </div>
 
     <div class="dialog-body">
       <div class="field">
         <label class="field-label" for="delay-input">Delay</label>
-        <DelayInput
-          bind:value={mockRoutes.items[index].delay}
-          onchange={handleChange}
-          id="delay-input"
-        />
+        <DelayInput bind:value={mockRoutes.items[index].delay} onchange={handleChange} id="delay-input" />
       </div>
       <div class="field">
         <label class="field-label" for="error-rate-input">Error Rate</label>
-        <ErrorRateInput
-          bind:value={mockRoutes.items[index].errorRate}
-          onchange={handleChange}
-          id="error-rate-input"
-        />
+        <ErrorRateInput bind:value={mockRoutes.items[index].errorRate} onchange={handleChange} id="error-rate-input" />
       </div>
 
       <div class="field">
         <label class="field-label">Custom Response Headers</label>
-        <HeadersEditor
-          bind:headers={mockRoutes.items[index].headers}
-          onchange={handleChange}
-        />
+        <HeadersEditor bind:headers={mockRoutes.items[index].headers} onchange={handleChange} />
       </div>
     </div>
   </div>

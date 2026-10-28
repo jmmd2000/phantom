@@ -1,17 +1,12 @@
 <script lang="ts">
   import { fly } from "svelte/transition";
   import { ChevronRight } from "@lucide/svelte";
-  import { isGlobalExpanded } from "#lib/ws.ts";
+  import { isGlobalExpanded, type RequestLogEntry } from "#lib/ws.ts";
   import LogDetails from "./LogDetails.svelte";
   import Badge from "../ui/Badge.svelte";
-  let { log, onCopy } = $props();
+  let { log, onCopy }: { log: RequestLogEntry; onCopy: (path: string) => void } = $props();
 
-  let isExpanded = $state(false);
-
-  // Sync with global store toggle
-  $effect(() => {
-    isExpanded = $isGlobalExpanded;
-  });
+  let isExpanded = $derived($isGlobalExpanded);
 
   const formatTime = (ts: number) => {
     const date = new Date(ts);
@@ -30,7 +25,7 @@
   class:expanded={isExpanded}
   in:fly={{ y: -10, duration: 200 }}
   onclick={() => (isExpanded = !isExpanded)}
-  onkeydown={(e) => e.key === "Enter" && (isExpanded = !isExpanded)}
+  onkeydown={e => e.key === "Enter" && (isExpanded = !isExpanded)}
   role="button"
   tabindex="0"
 >
@@ -41,8 +36,9 @@
     <Badge type={log.method} label={log.method} />
     <span class="path">{log.path}</span>
     <button
+      type="button"
       class="copy-button"
-      onclick={(e) => {
+      onclick={e => {
         e.stopPropagation();
         onCopy(log.path);
       }}

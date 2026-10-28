@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-10-28
+
+### Fixed
+
+- Dashboard file requests can no longer read files outside the dashboard folder.
+
 ## [0.2.4] - 2026-10-28
 
 ### Added
@@ -56,7 +62,8 @@
 - A dashboard with a live request feed, search and filters, request and response details, log export and route settings.
 - CLI flags for the port, the routes file, and a global delay and error rate.
 
-[Unreleased]: https://github.com/jmmd2000/phantom/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/jmmd2000/phantom/compare/v0.2.5...HEAD
+[0.2.5]: https://github.com/jmmd2000/phantom/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/jmmd2000/phantom/compare/v0.2.1...v0.2.4
 [0.2.1]: https://github.com/jmmd2000/phantom/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jmmd2000/phantom/compare/v0.1.2...v0.2.0

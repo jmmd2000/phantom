@@ -14,7 +14,31 @@ const MIME_TYPES: Record<string, string> = {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export async function handleStaticFile(requestPath: string) {
+/** The published build first, then the repo build during development. */
+const DASHBOARD_FOLDERS = [path.join(__dirname, "dashboard-ui"), path.join(__dirname, "../dashboard/build")];
+
+/**
+ * Decodes a request path and joins it onto the folder.
+ * Returns null when the path can't be decoded or ends up outside the folder.
+ */
+function resolveInside(folder: string, requestPath: string): string | null {
+  let decodedPath: string;
+  try {
+    decodedPath = decodeURIComponent(requestPath);
+  } catch {
+    return null;
+  }
+
+  const filePath = path.join(folder, decodedPath);
+  const isInside = filePath === folder || filePath.startsWith(folder + path.sep);
+  return isInside ? filePath : null;
+}
+
+/**
+ * Finds the dashboard file for a request. Returns null when the request isn't for the dashboard,
+ * or when its path leaves the dashboard folder, so the request ends in a 404.
+ */
+export async function handleStaticFile(requestPath: string, folders: string[] = DASHBOARD_FOLDERS) {
   const isDashboardBase = requestPath.startsWith("/_dashboard");
   const isAppAsset = requestPath.startsWith("/_app");
   const isPhantomSVG = requestPath === "/phantom.svg";
@@ -28,10 +52,10 @@ export async function handleStaticFile(requestPath: string) {
 
   if (cleanPath === "" || cleanPath === "/") cleanPath = "/index.html";
 
-  // check production path first, then development path
-  const paths = [path.join(__dirname, "dashboard-ui", cleanPath), path.join(__dirname, "../dashboard/build", cleanPath)];
+  for (const folder of folders) {
+    const filePath = resolveInside(folder, cleanPath);
+    if (!filePath) return null;
 
-  for (const filePath of paths) {
     try {
       const content = await fs.readFile(filePath);
       const ext = path.extname(filePath);
@@ -47,11 +71,9 @@ export async function handleStaticFile(requestPath: string) {
   }
 
   // SPA fallback for /_dashboard sub-routes
-  const fallbackPaths = [path.join(__dirname, "dashboard-ui", "index.html"), path.join(__dirname, "../dashboard/build", "index.html")];
-
-  for (const fallback of fallbackPaths) {
+  for (const folder of folders) {
     try {
-      const indexContent = await fs.readFile(fallback);
+      const indexContent = await fs.readFile(path.join(folder, "index.html"));
       return { body: indexContent, headers: { "Content-Type": "text/html" } };
     } catch {
       continue;

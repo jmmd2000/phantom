@@ -83,6 +83,25 @@ describe("handleRouting engine", () => {
     expect(result.params.query).toBe("hello world");
   });
 
+  it("answers 400 for a path with invalid percent-encoding", () => {
+    const mockRoutes: RouteConfig[] = [
+      {
+        path: "/users/:id",
+        method: "GET",
+        status: 200,
+        enabled: true,
+        body: {},
+        delay: 0,
+        errorRate: 0,
+        headers: {},
+      },
+    ];
+    const req = { path: "/users/%E0", method: "GET" } as MockRequest;
+
+    const result = handleRouting(req, mockRoutes);
+    expect(result.status).toBe(400);
+  });
+
   it("extracts chaos settings (delay/errorRate)", () => {
     const mockRoutes: RouteConfig[] = [
       {

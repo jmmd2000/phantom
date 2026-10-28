@@ -17,7 +17,7 @@ Thumbs.db
 # Config
 server/routes.json
 
-# Copied in by make publish
+# Copied in before publishing
 server/README.md
 server/LICENSE
 

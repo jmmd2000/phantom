@@ -4,6 +4,11 @@
   "description": "API mocker and traffic inspector with a built-in dashboard.",
   "author": "James Doyle",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmmd2000/phantom.git",
+    "directory": "server"
+  },
   "bin": {
     "phantom": "./dist/index.js"
   },

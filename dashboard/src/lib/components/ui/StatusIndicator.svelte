@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { online = false } = $props();
+  let { online = false }: { online?: boolean } = $props();
 </script>
 
 <div class="status-indicator">

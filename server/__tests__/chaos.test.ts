@@ -67,7 +67,7 @@ describe("Chaos Engine Integration", () => {
 
     const res = await fetch(`${baseURL}/fail`);
     expect(res.status).toBe(500);
-    const data: any = await res.json();
+    const data = (await res.json()) as { error: string };
     expect(data.error).toContain("Artificial failure hit!");
   });
 

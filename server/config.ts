@@ -12,7 +12,7 @@ export interface RouteConfig {
   path: string;
   method: string;
   status: number;
-  body: any;
+  body: unknown;
   enabled: boolean;
   delay: number;
   errorRate: number;

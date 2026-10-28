@@ -26,7 +26,7 @@ export function sendCorsPreflightResponse(socket: Socket) {
 /**
  * Sends a basic HTTP response to the client.
  */
-export function sendResponse(socket: Socket, status: number, message: string, body: any, headers: Record<string, string> = {}) {
+export function sendResponse(socket: Socket, status: number, message: string, body: unknown, headers: Record<string, string> = {}) {
   const response = buildResponse(status, message, body, headers);
   socket.write(response);
   socket.end();
@@ -35,7 +35,7 @@ export function sendResponse(socket: Socket, status: number, message: string, bo
 /**
  * Builds a valid HTTP response as a Buffer.
  */
-export function buildResponse(status: number, message: string, body: any, customHeaders: Record<string, string> = {}): Buffer {
+export function buildResponse(status: number, message: string, body: unknown, customHeaders: Record<string, string> = {}): Buffer {
   const isBuffer = Buffer.isBuffer(body);
   const bodyBuffer = isBuffer ? body : Buffer.from(typeof body === "object" ? JSON.stringify(body) : String(body));
 

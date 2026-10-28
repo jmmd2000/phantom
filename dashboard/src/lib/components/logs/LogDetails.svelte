@@ -1,8 +1,9 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
+  import type { RequestLogEntry } from "#lib/ws.ts";
   import Badge from "../ui/Badge.svelte";
 
-  let { log }: { log: any } = $props();
+  let { log }: { log: RequestLogEntry } = $props();
 
   const getStatusType = (status: number) => {
     if (status >= 500) return "error";

@@ -67,8 +67,20 @@ const socketManager = {
   },
 };
 
+interface RequestLogEntry {
+  id: string;
+  method: string;
+  path: string;
+  timestamp: number;
+  headers: Record<string, string>;
+  body: string;
+  status: number;
+  duration: number;
+  responseBody: unknown;
+}
+
 export const wsClients = new Map<string, net.Socket>();
-const requestHistory: any[] = [];
+const requestHistory: RequestLogEntry[] = [];
 
 server.on("connection", socket => {
   socketManager.add(socket);
@@ -137,7 +149,7 @@ server.on("connection", socket => {
         request.params = response.params;
 
         const isAdmin = request.path.startsWith("/_admin/");
-        let logEntry: any = null;
+        let logEntry: RequestLogEntry | null = null;
 
         if (isAdmin && request.path === "/_admin/clear" && request.method === "POST") {
           requestHistory.length = 0;

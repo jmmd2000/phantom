@@ -60,7 +60,7 @@ export function encodeWsFrame(dataString: string): Buffer {
 /**
  * Broadcasts a message to all connected WebSocket clients.
  */
-export function broadcast(clients: Map<string, Socket>, message: any) {
+export function broadcast(clients: Map<string, Socket>, message: unknown) {
   const frame = encodeWsFrame(JSON.stringify(message));
   for (const socket of clients.values()) {
     socket.write(frame);

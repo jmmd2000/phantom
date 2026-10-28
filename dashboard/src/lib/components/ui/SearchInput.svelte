@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { value = $bindable("") } = $props();
+  let { value = $bindable("") }: { value?: string } = $props();
 </script>
 
 <div class="search-container">

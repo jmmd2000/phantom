@@ -75,11 +75,20 @@ function hasValidEncoding(requestPath: string) {
 }
 
 /**
+ * Escapes the characters that have a special meaning in a regular expression.
+ */
+function escapeRegExp(text: string) {
+  // "$&" puts back the character that matched, after the backslash.
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
  * Matches a request path against a pattern like /users/:id.
+ * Everything except the :params matches literally.
  */
 function matchPath(pattern: string, actualPath: string) {
   const paramNames: string[] = [];
-  const regexPath = pattern.replace(/:([a-zA-Z0-9_]+)/g, (_, name) => {
+  const regexPath = escapeRegExp(pattern).replace(/:([a-zA-Z0-9_]+)/g, (_, name) => {
     paramNames.push(name);
     return "([^/]+)";
   });

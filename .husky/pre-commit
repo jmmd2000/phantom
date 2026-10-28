@@ -1,0 +1,1 @@
+lint-staged --fail-on-changes && pnpm typecheck && pnpm test:unit

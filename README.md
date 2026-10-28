@@ -1,6 +1,7 @@
 # PHANTOM
 
 [![npm version](https://img.shields.io/npm/v/%40jamesmddoyle%2Fphantom?color=5e4d8a)](https://www.npmjs.com/package/@jamesmddoyle/phantom)
+[![CI](https://github.com/jmmd2000/phantom/actions/workflows/ci.yml/badge.svg)](https://github.com/jmmd2000/phantom/actions/workflows/ci.yml)
 
 Phantom is a low-level API mocker and traffic inspector. Built using raw Node.js TCP sockets. It includes a built in dashboard for real-time monitoring and route configuration.
 

@@ -43,7 +43,7 @@ export function connectToServer() {
       }
 
       if (data.type === "CONFIG_UPDATED") {
-        fetchMockRoutes();
+        void fetchMockRoutes();
         return;
       }
 

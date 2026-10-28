@@ -9,7 +9,7 @@
 
   const handleChange = async () => {
     await tick();
-    saveRoutes();
+    await saveRoutes();
   };
 
   let clickStartedOnBackdrop = false;

@@ -16,7 +16,7 @@
   let serverVersion = $state("0.0.0");
 
   onMount(async () => {
-    fetchMockRoutes();
+    void fetchMockRoutes();
     connectToServer();
 
     try {

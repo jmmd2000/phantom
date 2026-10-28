@@ -17,7 +17,7 @@
 
   const handleToggle = async () => {
     await tick();
-    saveRoutes();
+    await saveRoutes();
   };
 
   let isModified = $derived(route.delay > 0 || route.errorRate > 0 || Object.keys(route.headers || {}).length > 0);

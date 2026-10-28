@@ -89,6 +89,7 @@ server.on("connection", socket => {
   let requestBuffer: Buffer = Buffer.alloc(0);
 
   // listen to raw data
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises -- Nothing catches errors in this handler, so one bad request can stop the server.
   socket.on("data", async (chunk: Buffer) => {
     // if its a websocket connection, ignore the http parser
     if (wsClients.has(socketID)) return;
@@ -162,7 +163,7 @@ server.on("connection", socket => {
           logger.info(`Delaying response by ${delay}ms`);
         }
 
-        setTimeout(async () => {
+        setTimeout(() => {
           if (socket.destroyed) return;
 
           const errorRate = options.errorRate ?? response.errorRate ?? 0;
@@ -234,7 +235,7 @@ export function startServer(port: number, willShowBanner: boolean): Promise<net.
 }
 
 if (import.meta.url === `file://${process.argv[1]}` || process.env.NODE_ENV !== "test") {
-  startServer(Number(options.port), true);
+  await startServer(Number(options.port), true);
 }
 
 function showBanner(port: number) {

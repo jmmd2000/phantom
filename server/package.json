@@ -1,6 +1,6 @@
 {
   "name": "@jamesmddoyle/phantom",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "API mocker and traffic inspector with a built-in dashboard.",
   "author": "James Doyle",
   "license": "MIT",
@@ -13,7 +13,7 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "rm -rf dist && tsc && cp package.json ./dist/ && cp -r ../dashboard/build ./dist/dashboard-ui",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && cp package.json ./dist/ && cp -r ../dashboard/build ./dist/dashboard-ui",
     "dev": "node --watch --experimental-strip-types index.ts",
     "typecheck": "tsc --noEmit"
   },

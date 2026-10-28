@@ -9,7 +9,7 @@ build: clean
 	pnpm build
 
 publish: build
-	cp README.md server/
+	cp README.md LICENSE server/
 	cd server && npm publish --access public
 
 run:

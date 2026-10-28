@@ -6,23 +6,18 @@ on:
       - "v*"
 
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 jobs:
-  release:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
-      # Release builds use no cache, so a poisoned cache can't reach the published package.
       - uses: actions/setup-node@v7
         with:
           node-version-file: package.json
-          registry-url: https://registry.npmjs.org
           package-manager-cache: false
-
-      - uses: pnpm/action-setup@v6
 
       - name: Check the tag matches the package version
         run: |
@@ -32,20 +27,32 @@ jobs:
             exit 1
           fi
 
-      - name: Read the changelog entry
-        run: node scripts/changelogEntry.js "${GITHUB_REF_NAME#v}" > "$RUNNER_TEMP/release-notes.md"
+      - name: Check the changelog has an entry
+        run: node scripts/changelogEntry.js "${GITHUB_REF_NAME#v}"
+
+  checks:
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: [verify, checks]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+
+      # The published package is built with no cache, so a poisoned cache can't reach it.
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - uses: pnpm/action-setup@v6
 
       - name: Install
         run: pnpm install --frozen-lockfile
-
-      - name: Format and lint
-        run: pnpm format:check
-
-      - name: Type check
-        run: pnpm typecheck
-
-      - name: Test
-        run: pnpm test
 
       - name: Build
         run: pnpm build
@@ -59,4 +66,6 @@ jobs:
       - name: Create the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/release-notes.md" --verify-tag
+        run: |
+          node scripts/changelogEntry.js "${GITHUB_REF_NAME#v}" > "$RUNNER_TEMP/release-notes.md"
+          gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/release-notes.md" --verify-tag

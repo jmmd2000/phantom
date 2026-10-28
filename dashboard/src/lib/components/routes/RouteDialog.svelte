@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from "svelte";
-  import { mockRoutes, saveRoutes, type RouteConfig } from "$lib/routes.svelte";
+  import { mockRoutes, saveRoutes, type RouteConfig } from "#lib/routes.svelte.ts";
   import DelayInput from "./DelayInput.svelte";
   import ErrorRateInput from "./ErrorRateInput.svelte";
   import HeadersEditor from "./HeadersEditor.svelte";

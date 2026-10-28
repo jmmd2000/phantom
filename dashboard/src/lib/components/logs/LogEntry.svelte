@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fly } from "svelte/transition";
-  import { ChevronRight } from "lucide-svelte";
-  import { isGlobalExpanded } from "$lib/ws";
+  import { ChevronRight } from "@lucide/svelte";
+  import { isGlobalExpanded } from "#lib/ws.ts";
   import LogDetails from "./LogDetails.svelte";
   import Badge from "../ui/Badge.svelte";
   let { log, onCopy } = $props();

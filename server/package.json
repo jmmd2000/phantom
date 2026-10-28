@@ -1,6 +1,6 @@
 {
   "name": "@jamesmddoyle/phantom",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "API mocker and traffic inspector with a built-in dashboard.",
   "author": "James Doyle",
   "license": "MIT",
@@ -18,7 +18,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/node": "26.6.6",
+    "@types/node": "26.6.5",
     "typescript": "6.0.3"
   },
   "dependencies": {

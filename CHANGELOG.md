@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-29
+
+### Added
+
+- `--host` sets the address the server listens on.
+
+### Changed
+
+- The server listens on 127.0.0.1 by default, so only this machine can connect. Use `--host 0.0.0.0` to accept connections from other machines.
+- The startup banner shows the address the server listens on.
+
 ## [0.2.7] - 2026-10-29
 
 ### Fixed
@@ -76,7 +87,8 @@
 - A dashboard with a live request feed, search and filters, request and response details, log export and route settings.
 - CLI flags for the port, the routes file, and a global delay and error rate.
 
-[Unreleased]: https://github.com/jmmd2000/phantom/compare/v0.2.7...HEAD
+[Unreleased]: https://github.com/jmmd2000/phantom/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/jmmd2000/phantom/compare/v0.2.7...v0.3.0
 [0.2.7]: https://github.com/jmmd2000/phantom/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/jmmd2000/phantom/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/jmmd2000/phantom/compare/v0.2.4...v0.2.5

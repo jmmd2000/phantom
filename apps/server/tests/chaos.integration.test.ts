@@ -1,22 +1,23 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { startServer, server } from "../src/index.ts";
+import { startTestServer, type TestServer } from "./helpers.ts";
 import { writeRoutes, reloadRoutes, setConfigPath } from "../src/config.ts";
 
 describe("Chaos Engine Integration", () => {
-  const TEST_PORT = 3999;
-  const baseURL = `http://localhost:${TEST_PORT}`;
+  let testServer: TestServer;
+  let baseURL: string;
   const TEMP_CONFIG = path.join(__dirname, "routes.chaos.json");
 
   beforeAll(async () => {
     // Redirect config to a temp file
     setConfigPath(TEMP_CONFIG);
-    await startServer(TEST_PORT, false);
+    testServer = await startTestServer();
+    baseURL = testServer.baseURL;
   });
 
-  afterAll(() => {
-    server.close();
+  afterAll(async () => {
+    await testServer.stop();
     // Cleanup temp file
     if (fs.existsSync(TEMP_CONFIG)) {
       fs.unlinkSync(TEMP_CONFIG);

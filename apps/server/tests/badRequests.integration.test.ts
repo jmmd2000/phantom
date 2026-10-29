@@ -2,12 +2,12 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { startServer, server } from "../src/index.ts";
+import { startTestServer, type TestServer } from "./helpers.ts";
 import { writeRoutes, reloadRoutes, setConfigPath } from "../src/config.ts";
 
 describe("Bad requests", () => {
-  const TEST_PORT = 3993;
-  const baseURL = `http://localhost:${TEST_PORT}`;
+  let testServer: TestServer;
+  let baseURL: string;
   let folder: string;
 
   beforeAll(async () => {
@@ -15,11 +15,12 @@ describe("Bad requests", () => {
     setConfigPath(path.join(folder, "routes.json"));
     writeRoutes([{ path: "/users/:id", method: "GET", status: 200, body: { ok: true }, enabled: true, delay: 0, errorRate: 0, headers: {} }]);
     reloadRoutes();
-    await startServer(TEST_PORT, false);
+    testServer = await startTestServer();
+    baseURL = testServer.baseURL;
   });
 
-  afterAll(() => {
-    server.close();
+  afterAll(async () => {
+    await testServer.stop();
     fs.rmSync(folder, { recursive: true, force: true });
     setConfigPath("routes.json");
   });

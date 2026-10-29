@@ -30,6 +30,7 @@ To start the server, run `phantom` in any directory. It will look for a `routes.
 ## CLI Options
 
 - `--port`: The port to run the server on (default: 3001).
+- `--host`: The address to listen on (default: 127.0.0.1, this machine only). Use `0.0.0.0` to accept connections from other machines.
 - `--config`: Custom path to a routes JSON file.
 - `--delay`: Global latency override in milliseconds.
 - `--error-rate`: Global failure rate override (0.0 to 1.0).

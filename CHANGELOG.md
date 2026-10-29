@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- The README has a screenshot and a quick start.
+
 ## [0.3.0] - 2026-10-29
 
 ### Added

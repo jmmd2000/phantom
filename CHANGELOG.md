@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-29
+
 ### Changed
 
 - The README has a screenshot and a quick start.
@@ -96,7 +98,8 @@
 - A dashboard with a live request feed, search and filters, request and response details, log export and route settings.
 - CLI flags for the port, the routes file, and a global delay and error rate.
 
-[Unreleased]: https://github.com/jmmd2000/phantom/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/jmmd2000/phantom/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/jmmd2000/phantom/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/jmmd2000/phantom/compare/v0.2.7...v0.3.0
 [0.2.7]: https://github.com/jmmd2000/phantom/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/jmmd2000/phantom/compare/v0.2.5...v0.2.6

@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- The live feed is on `/_ws`. WebSocket upgrades on other paths get a 400.
+
+### Fixed
+
+- A failed WebSocket handshake gets a 400 and never joins the live feed.
+
 ## [0.3.1] - 2026-10-29
 
 ### Changed

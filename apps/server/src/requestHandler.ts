@@ -12,6 +12,8 @@ import type { Feed } from "./feed.ts";
 import type { RouteStore } from "./routeStore.ts";
 import type { RoutesFile } from "./routesFile.ts";
 
+const FEED_PATH = "/_ws";
+
 /** What the request handler needs from the server. */
 export interface RequestContext {
   feed: Feed;
@@ -55,8 +57,14 @@ export function handleConnection(socket: Socket, context: RequestContext) {
         }
 
         if (isWebSocketUpgrade(request.headers)) {
-          logger.info("WebSocket Handshake successful");
-          handleWebSocketHandshake(socket, request);
+          if (request.path.split("?")[0] !== FEED_PATH) {
+            sendResponse(socket, 400, "Bad Request", { error: `WebSocket upgrades are only accepted on ${FEED_PATH}` });
+            return;
+          }
+
+          if (!handleWebSocketHandshake(socket, request)) return;
+
+          logger.info("WebSocket handshake successful");
           feed.subscribe(socketID, socket);
           return;
         }

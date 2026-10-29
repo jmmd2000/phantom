@@ -1,14 +1,19 @@
 import type { Socket } from "node:net";
-import type { MockRequest } from "./parser.ts";
 import { createHash } from "node:crypto";
+import type { MockRequest } from "./parser.ts";
+import { sendResponse } from "./responder.ts";
 
-export function handleWebSocketHandshake(socket: Socket, request: MockRequest) {
+/**
+ * Answers a WebSocket upgrade request. Sends a 101 and returns true when the request is valid.
+ * Otherwise sends a 400 and returns false.
+ */
+export function handleWebSocketHandshake(socket: Socket, request: MockRequest): boolean {
   const key = request.headers["sec-websocket-key"];
+  const version = request.headers["sec-websocket-version"];
 
-  if (!key) {
-    socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
-    socket.destroy();
-    return;
+  if (request.method !== "GET" || !key || version !== "13") {
+    sendResponse(socket, 400, "Bad Request", { error: "Invalid WebSocket handshake" });
+    return false;
   }
 
   const MAGIC_STRING = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -27,6 +32,7 @@ export function handleWebSocketHandshake(socket: Socket, request: MockRequest) {
   ].join("\r\n");
 
   socket.write(response);
+  return true;
 }
 
 /**

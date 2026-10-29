@@ -1,7 +1,6 @@
 import type { RouteConfig } from "@phantom/shared";
-import { getActiveRoutes, writeRoutes } from "./config.ts";
+import { getActiveRoutes } from "./config.ts";
 import type { MockRequest } from "./parser.ts";
-import { VERSION } from "./index.ts";
 
 export interface MockResponse {
   status: number;
@@ -16,24 +15,6 @@ export interface MockResponse {
 export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]): MockResponse {
   if (!hasValidEncoding(request.path)) {
     return { status: 400, message: "Bad Request", body: { error: `Path ${request.path} has invalid percent-encoding` }, params: {} };
-  }
-
-  if (request.path === "/_admin/version" && request.method === "GET") {
-    return { status: 200, message: "OK", body: { version: VERSION }, params: {} };
-  }
-
-  if (request.path === "/_admin/routes" && request.method === "GET") {
-    return { status: 200, message: "OK", body: getActiveRoutes(), params: {} };
-  }
-
-  if (request.path === "/_admin/routes" && request.method === "PUT") {
-    const routes = JSON.parse(request.body.toString("utf-8"));
-    writeRoutes(routes);
-    return { status: 200, message: "OK", body: { success: true }, params: {} };
-  }
-
-  if (request.path === "/_admin/clear" && request.method === "POST") {
-    return { status: 200, message: "OK", body: { success: true }, params: {} };
   }
 
   const routes = customRoutes || getActiveRoutes();

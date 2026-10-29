@@ -6,16 +6,16 @@ import type { RequestLogEntry } from "@phantom/shared";
 import { isRequestComplete, isWebSocketUpgrade, parseRequest } from "./parser.ts";
 import { sendCorsPreflightResponse, sendResponse } from "./responder.ts";
 import { handleRouting } from "./router.ts";
+import { handleAdmin } from "./admin.ts";
+import { readVersion } from "./version.ts";
 import { watchConfig, setConfigPath, reloadRoutes, writeRoutes } from "./config.ts";
 import { broadcast, encodeWsFrame, handleWebSocketHandshake, startHeartbeat } from "./ws.ts";
 import { parseCLI, DEFAULT_HOST } from "./cli.ts";
 import { handleStaticFile } from "./static.ts";
-import { readFileSync } from "node:fs";
 import { logger } from "./logger.ts";
 import { hex, hexBg, COLOURS } from "./utils.ts";
 
-const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf-8"));
-export const VERSION = pkg.version;
+const VERSION = readVersion();
 
 const options = parseCLI(VERSION);
 
@@ -135,7 +135,7 @@ server.on("connection", socket => {
         }
 
         const start = Date.now();
-        const response = handleRouting(request);
+        const response = handleAdmin(request, VERSION) ?? handleRouting(request);
         request.params = response.params;
 
         const isAdmin = request.path.startsWith("/_admin/");

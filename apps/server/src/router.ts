@@ -1,5 +1,4 @@
 import type { RouteConfig } from "@phantom/shared";
-import { getActiveRoutes } from "./config.ts";
 import type { MockRequest } from "./parser.ts";
 
 export interface MockResponse {
@@ -12,12 +11,13 @@ export interface MockResponse {
   headers?: Record<string, string>;
 }
 
-export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]): MockResponse {
+/**
+ * Finds the route that matches the request and returns its mock response, or a 404 or 400.
+ */
+export function handleRouting(request: MockRequest, routes: RouteConfig[]): MockResponse {
   if (!hasValidEncoding(request.path)) {
     return { status: 400, message: "Bad Request", body: { error: `Path ${request.path} has invalid percent-encoding` }, params: {} };
   }
-
-  const routes = customRoutes || getActiveRoutes();
 
   for (const route of routes) {
     if (route.enabled === false) continue;

@@ -9,10 +9,15 @@ import { handleWebSocketHandshake } from "./ws.ts";
 import { handleStaticFile } from "./static.ts";
 import { logger } from "./logger.ts";
 import type { Feed } from "./feed.ts";
+import type { RouteStore } from "./routeStore.ts";
+import type { RoutesFile } from "./routesFile.ts";
 
 /** What the request handler needs from the server. */
 export interface RequestContext {
   feed: Feed;
+  store: RouteStore;
+  /** The routes file that admin changes are written to, or null when the routes live only in memory. */
+  routesFile: RoutesFile | null;
   version: string;
   /** A delay in milliseconds for every request, or null to use each route's delay. */
   globalDelay: number | null;
@@ -68,7 +73,7 @@ export function handleConnection(socket: Socket, context: RequestContext) {
 
         // redirect root to dashboard if no root mock exists
         if (request.path === "/") {
-          const rootResponse = handleRouting(request);
+          const rootResponse = handleRouting(request, context.store.getRoutes());
           if (rootResponse.status === 404) {
             sendResponse(socket, 302, "Found", "", { Location: "/_dashboard/" });
             requestBuffer = Buffer.alloc(0);
@@ -77,7 +82,7 @@ export function handleConnection(socket: Socket, context: RequestContext) {
         }
 
         const start = Date.now();
-        const response = handleAdmin(request, context.version) ?? handleRouting(request);
+        const response = handleAdmin(request, context) ?? handleRouting(request, context.store.getRoutes());
         request.params = response.params;
 
         const isAdmin = request.path.startsWith("/_admin/");

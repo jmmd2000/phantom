@@ -2,7 +2,6 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { startTestServer, type TestServer } from "./helpers.ts";
-import { writeRoutes, reloadRoutes, setConfigPath } from "../src/config.ts";
 
 describe("Chaos Engine Integration", () => {
   let testServer: TestServer;
@@ -10,25 +9,20 @@ describe("Chaos Engine Integration", () => {
   const TEMP_CONFIG = path.join(__dirname, "routes.chaos.json");
 
   beforeAll(async () => {
-    // Redirect config to a temp file
-    setConfigPath(TEMP_CONFIG);
-    testServer = await startTestServer();
+    testServer = await startTestServer({ routesFilePath: TEMP_CONFIG });
     baseURL = testServer.baseURL;
   });
 
   afterAll(async () => {
     await testServer.stop();
-    // Cleanup temp file
     if (fs.existsSync(TEMP_CONFIG)) {
       fs.unlinkSync(TEMP_CONFIG);
     }
-    // Restore default
-    setConfigPath("routes.json");
   });
 
   it("should respect the configured delay", async () => {
     const delay = 500;
-    writeRoutes([
+    testServer.routesFile.write([
       {
         path: "/slow",
         method: "GET",
@@ -40,7 +34,7 @@ describe("Chaos Engine Integration", () => {
         headers: {},
       },
     ]);
-    reloadRoutes();
+    testServer.routesFile.load();
 
     const start = Date.now();
     const res = await fetch(`${baseURL}/slow`);
@@ -51,7 +45,7 @@ describe("Chaos Engine Integration", () => {
   });
 
   it("should return 500 when errorRate is 1.0", async () => {
-    writeRoutes([
+    testServer.routesFile.write([
       {
         path: "/fail",
         method: "GET",
@@ -63,7 +57,7 @@ describe("Chaos Engine Integration", () => {
         headers: {},
       },
     ]);
-    reloadRoutes();
+    testServer.routesFile.load();
 
     const res = await fetch(`${baseURL}/fail`);
     expect(res.status).toBe(500);
@@ -72,7 +66,7 @@ describe("Chaos Engine Integration", () => {
   });
 
   it("should never fail when errorRate is 0.0", async () => {
-    writeRoutes([
+    testServer.routesFile.write([
       {
         path: "/safe",
         method: "GET",
@@ -84,7 +78,7 @@ describe("Chaos Engine Integration", () => {
         headers: {},
       },
     ]);
-    reloadRoutes();
+    testServer.routesFile.load();
 
     const res = await fetch(`${baseURL}/safe`);
     expect(res.status).toBe(200);

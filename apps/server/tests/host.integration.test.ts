@@ -1,6 +1,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import * as os from "node:os";
 import { PhantomServer } from "../src/server.ts";
+import { RouteStore } from "../src/routeStore.ts";
 
 /**
  * Returns this machine's first IPv4 address on a network interface, or undefined when it has none.
@@ -33,7 +34,7 @@ describe.runIf(address)("Listening address", () => {
   });
 
   it("only accepts connections from this machine by default", async () => {
-    phantom = new PhantomServer({ version: "test", globalDelay: null, globalErrorRate: null });
+    phantom = new PhantomServer({ version: "test", globalDelay: null, globalErrorRate: null, store: new RouteStore(), routesFile: null });
     const port = await phantom.start(0);
 
     expect(await answers(`http://127.0.0.1:${port}/anything`)).toBe(true);
@@ -41,7 +42,7 @@ describe.runIf(address)("Listening address", () => {
   });
 
   it("accepts connections on every interface with 0.0.0.0", async () => {
-    phantom = new PhantomServer({ version: "test", globalDelay: null, globalErrorRate: null });
+    phantom = new PhantomServer({ version: "test", globalDelay: null, globalErrorRate: null, store: new RouteStore(), routesFile: null });
     const port = await phantom.start(0, "0.0.0.0");
 
     expect(await answers(`http://${address}:${port}/anything`)).toBe(true);

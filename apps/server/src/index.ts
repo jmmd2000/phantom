@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { styleText } from "node:util";
 import { readVersion } from "./version.ts";
-import { watchConfig, setConfigPath, reloadRoutes, writeRoutes } from "./config.ts";
+import { RouteStore } from "./routeStore.ts";
+import { RoutesFile } from "./routesFile.ts";
 import { parseCLI } from "./cli.ts";
 import { PhantomServer } from "./server.ts";
 import { logger } from "./logger.ts";
@@ -10,6 +11,7 @@ import { hex, hexBg, COLOURS } from "./utils.ts";
 const VERSION = readVersion();
 
 const options = parseCLI(VERSION);
+const store = new RouteStore();
 
 if (options.command === "init") {
   const defaultRoutes = [
@@ -25,13 +27,13 @@ if (options.command === "init") {
     },
   ];
 
-  writeRoutes(defaultRoutes);
+  new RoutesFile("routes.json", store).write(defaultRoutes);
   logger.success("Created default routes.json");
   logger.info("Run 'phantom' to start the server");
   process.exit(0);
 }
 
-setConfigPath(options.config);
+const routesFile = new RoutesFile(options.config, store);
 
 if (options.verbose) {
   logger.setLogLevel("verbose");
@@ -43,16 +45,16 @@ const phantom = new PhantomServer({
   version: VERSION,
   globalDelay: options.delay,
   globalErrorRate: options.errorRate,
+  store,
+  routesFile,
 });
 
-watchConfig(() => {
-  phantom.feed.notifyRoutesChanged();
-});
+routesFile.watch();
 
 const port = await phantom.start(options.port, options.host);
 showBanner(port, options.host);
 // The banner clears the screen, so load the routes after it to keep their log line visible.
-reloadRoutes();
+routesFile.load();
 
 /**
  * Returns the host for the dashboard link. A browser can't open 0.0.0.0 or ::, which mean every interface.

@@ -3,7 +3,6 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { startTestServer, type TestServer } from "./helpers.ts";
-import { writeRoutes, reloadRoutes, setConfigPath } from "../src/config.ts";
 
 describe("Bad requests", () => {
   let testServer: TestServer;
@@ -12,17 +11,15 @@ describe("Bad requests", () => {
 
   beforeAll(async () => {
     folder = fs.mkdtempSync(path.join(os.tmpdir(), "phantom-bad-requests-"));
-    setConfigPath(path.join(folder, "routes.json"));
-    writeRoutes([{ path: "/users/:id", method: "GET", status: 200, body: { ok: true }, enabled: true, delay: 0, errorRate: 0, headers: {} }]);
-    reloadRoutes();
-    testServer = await startTestServer();
+    testServer = await startTestServer({ routesFilePath: path.join(folder, "routes.json") });
+    testServer.routesFile.write([{ path: "/users/:id", method: "GET", status: 200, body: { ok: true }, enabled: true, delay: 0, errorRate: 0, headers: {} }]);
+    testServer.routesFile.load();
     baseURL = testServer.baseURL;
   });
 
   afterAll(async () => {
     await testServer.stop();
     fs.rmSync(folder, { recursive: true, force: true });
-    setConfigPath("routes.json");
   });
 
   it("answers 400 for invalid percent-encoding and keeps running", async () => {

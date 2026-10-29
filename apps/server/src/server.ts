@@ -17,6 +17,10 @@ export class PhantomServer {
   constructor(options: ServerOptions) {
     const context: RequestContext = { ...options, feed: this.feed };
 
+    options.store.onChange(() => {
+      this.feed.notifyRoutesChanged();
+    });
+
     this.server.on("connection", socket => {
       this.track(socket);
       handleConnection(socket, context);

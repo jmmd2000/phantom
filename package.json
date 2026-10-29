@@ -13,6 +13,7 @@
     "prepare": "husky",
     "dev": "pnpm --recursive --parallel dev",
     "build": "pnpm --filter ./apps/dashboard build && pnpm --filter ./apps/server build",
+    "start": "pnpm --filter ./apps/server start",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check . && eslint .",

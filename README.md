@@ -5,6 +5,17 @@
 
 Phantom is a low-level API mocker and traffic inspector. Built using raw Node.js TCP sockets. It includes a built in dashboard for real-time monitoring and route configuration.
 
+![Phantom dashboard](https://raw.githubusercontent.com/jmmd2000/phantom/master/docs/dashboard.png)
+
+## Quick start
+
+```bash
+npx @jamesmddoyle/phantom init
+npx @jamesmddoyle/phantom
+```
+
+The dashboard runs at http://localhost:3001/_dashboard/.
+
 ## Features
 
 - **Traffic Inspector**: View request and response headers, bodies, and latency in a real-time feed.
@@ -12,6 +23,10 @@ Phantom is a low-level API mocker and traffic inspector. Built using raw Node.js
 - **Deep Search**: Filter request history by path, method, or content within the body.
 - **Self-Contained**: The server serves both the mock API and the static dashboard UI on a single port.
 - **Binary Support**: Capability to handle and serve binary assets like images.
+
+## How it's built
+
+Phantom is built on raw TCP sockets, not Node's `http` module. HTTP parsing and WebSocket framing are written by hand.
 
 ## Installation
 

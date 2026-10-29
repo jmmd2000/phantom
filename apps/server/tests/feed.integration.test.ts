@@ -3,7 +3,8 @@ import * as fs from "node:fs";
 import * as net from "node:net";
 import * as os from "node:os";
 import * as path from "node:path";
-import { startTestServer, type TestServer } from "./helpers.ts";
+import { encodeWsFrame, OPCODE_CLOSE } from "../src/ws.ts";
+import { clientFrame, startTestServer, type TestServer } from "./helpers.ts";
 
 const HANDSHAKE_HEADERS = {
   Upgrade: "websocket",
@@ -11,6 +12,11 @@ const HANDSHAKE_HEADERS = {
   "Sec-WebSocket-Key": "dGhlIHNhbXBsZSBub25jZQ==",
   "Sec-WebSocket-Version": "13",
 };
+
+function upgradeRequest(requestPath: string, headers: Record<string, string>): string {
+  const headerLines = Object.entries(headers).map(([name, value]) => `${name}: ${value}`);
+  return [`GET ${requestPath} HTTP/1.1`, "Host: 127.0.0.1", ...headerLines, "", ""].join("\r\n");
+}
 
 /**
  * Sends an upgrade request on a raw socket. Resolves with the socket and the response headers.
@@ -30,8 +36,18 @@ function sendUpgrade(port: number, requestPath: string, headers: Record<string, 
       resolve({ socket, response: received.slice(0, headerEnd) });
     });
 
-    const headerLines = Object.entries(headers).map(([name, value]) => `${name}: ${value}`);
-    socket.write([`GET ${requestPath} HTTP/1.1`, "Host: 127.0.0.1", ...headerLines, "", ""].join("\r\n"));
+    socket.write(upgradeRequest(requestPath, headers));
+  });
+}
+
+/**
+ * Resolves with every byte the server sends, once the server ends the connection.
+ */
+function readUntilEnd(socket: net.Socket): Promise<Buffer> {
+  return new Promise(resolve => {
+    const chunks: Buffer[] = [];
+    socket.on("data", (chunk: Buffer) => chunks.push(chunk));
+    socket.on("end", () => resolve(Buffer.concat(chunks)));
   });
 }
 
@@ -78,5 +94,17 @@ describe("Live feed", () => {
     const { socket, response } = await sendUpgrade(testServer.port, "/_ws", headersWithoutKey);
     expect(response).toMatch(/^HTTP\/1\.1 400/);
     socket.destroy();
+  });
+
+  it("answers a close frame and ends the connection", async () => {
+    const socket = net.connect(testServer.port, "127.0.0.1");
+    const received = readUntilEnd(socket);
+    const normalClosure = Buffer.from([0x03, 0xe8]);
+
+    // Send the close frame in the same write as the handshake, as a client may.
+    socket.write(Buffer.concat([Buffer.from(upgradeRequest("/_ws", HANDSHAKE_HEADERS)), clientFrame(normalClosure, OPCODE_CLOSE)]));
+
+    const closeReply = encodeWsFrame(normalClosure, OPCODE_CLOSE);
+    expect((await received).subarray(-closeReply.length)).toEqual(closeReply);
   });
 });

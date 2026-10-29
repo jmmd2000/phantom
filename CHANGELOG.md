@@ -9,6 +9,7 @@
 ### Fixed
 
 - A failed WebSocket handshake gets a 400 and never joins the live feed.
+- The server answers a close frame from the dashboard and ends the connection cleanly.
 
 ## [0.3.1] - 2026-10-29
 

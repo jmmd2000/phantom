@@ -14,7 +14,7 @@ import { readFileSync } from "node:fs";
 import { logger } from "./logger.ts";
 import { hex, hexBg, COLOURS } from "./utils.ts";
 
-const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf-8"));
+const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf-8"));
 export const VERSION = pkg.version;
 
 const options = parseCLI(VERSION);

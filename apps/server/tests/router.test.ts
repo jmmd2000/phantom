@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { handleRouting } from "../router.ts";
-import type { MockRequest } from "../parser.ts";
+import { handleRouting } from "../src/router.ts";
+import type { MockRequest } from "../src/parser.ts";
 import type { RouteConfig } from "@phantom/shared";
 
 describe("handleRouting engine", () => {

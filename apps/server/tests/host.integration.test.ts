@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import * as os from "node:os";
-import { startServer, server } from "../index.ts";
+import { startServer, server } from "../src/index.ts";
 
 const TEST_PORT = 3992;
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildResponse } from "../responder.ts";
+import { buildResponse } from "../src/responder.ts";
 
 describe("buildResponse", () => {
   it("returns a correctly formatted HTTP/1.1 string", () => {

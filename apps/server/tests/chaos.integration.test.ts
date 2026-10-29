@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { startServer, server } from "../index.ts";
-import { writeRoutes, reloadRoutes, setConfigPath } from "../config.ts";
+import { startServer, server } from "../src/index.ts";
+import { writeRoutes, reloadRoutes, setConfigPath } from "../src/config.ts";
 
 describe("Chaos Engine Integration", () => {
   const TEST_PORT = 3999;

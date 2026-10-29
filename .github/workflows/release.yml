@@ -21,9 +21,9 @@ jobs:
 
       - name: Check the tag matches the package version
         run: |
-          version=$(node -p "require('./server/package.json').version")
+          version=$(node -p "require('./apps/server/package.json').version")
           if [ "$GITHUB_REF_NAME" != "v$version" ]; then
-            echo "Tag $GITHUB_REF_NAME does not match version $version in server/package.json"
+            echo "Tag $GITHUB_REF_NAME does not match version $version in apps/server/package.json"
             exit 1
           fi
 
@@ -59,8 +59,8 @@ jobs:
 
       - name: Publish to npm
         run: |
-          cp README.md LICENSE server/
-          cd server
+          cp README.md LICENSE apps/server/
+          cd apps/server
           npm publish --access public
 
       - name: Create the GitHub release

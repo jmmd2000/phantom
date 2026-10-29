@@ -1,6 +1,6 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
-  import type { RequestLogEntry } from "#lib/ws.ts";
+  import type { RequestLogEntry } from "@phantom/shared";
   import Badge from "../ui/Badge.svelte";
 
   let { log }: { log: RequestLogEntry } = $props();

@@ -1,7 +1,7 @@
 import path from "node:path";
 import { configDefaults, defineConfig } from "vitest/config";
 
-const serverRoot = path.resolve(import.meta.dirname, "server");
+const serverRoot = path.resolve(import.meta.dirname, "apps/server");
 const integrationTests = "__tests__/**/*.integration.test.ts";
 
 const serverProject = { root: serverRoot };

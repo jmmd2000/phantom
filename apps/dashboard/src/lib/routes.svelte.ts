@@ -1,15 +1,6 @@
-const API_URL = "http://localhost:3001/_admin/routes";
+import type { RouteConfig } from "@phantom/shared";
 
-export interface RouteConfig {
-  path: string;
-  method: string;
-  status: number;
-  body: unknown;
-  enabled: boolean;
-  delay: number;
-  errorRate: number;
-  headers: Record<string, string>;
-}
+const API_URL = "http://localhost:3001/_admin/routes";
 
 const routeDefaults = (route: Partial<RouteConfig>): RouteConfig => ({
   path: route.path ?? "/",

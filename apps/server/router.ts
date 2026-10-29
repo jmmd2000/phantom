@@ -1,4 +1,5 @@
-import { getActiveRoutes, writeRoutes, type RouteConfig } from "./config.ts";
+import type { RouteConfig } from "@phantom/shared";
+import { getActiveRoutes, writeRoutes } from "./config.ts";
 import type { MockRequest } from "./parser.ts";
 import { VERSION } from "./index.ts";
 

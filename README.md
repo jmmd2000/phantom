@@ -72,7 +72,7 @@ Example `routes.json` structure:
 
 ## Commands
 
-- `make dev`: Run the dashboard and server in development mode.
-- `make build`: Build both projects for production.
-- `make run`: Run the production build locally.
-- `make test`: Run server-side tests.
+- `pnpm dev`: Run the dashboard and server in development mode.
+- `pnpm build`: Build both apps.
+- `pnpm start`: Run the built server. Flags pass through, such as `pnpm start --port 4000`.
+- `pnpm test`: Run the unit and integration tests.

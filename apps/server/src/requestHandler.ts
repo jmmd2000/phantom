@@ -7,10 +7,13 @@ import { handleRouting } from "./router.ts";
 import { handleAdmin } from "./admin.ts";
 import { handleWebSocketHandshake } from "./ws.ts";
 import { handleStaticFile } from "./static.ts";
+import { WebSocketClient } from "./webSocketClient.ts";
 import { logger } from "./logger.ts";
 import type { Feed } from "./feed.ts";
 import type { RouteStore } from "./routeStore.ts";
 import type { RoutesFile } from "./routesFile.ts";
+
+const FEED_PATH = "/_ws";
 
 /** What the request handler needs from the server. */
 export interface RequestContext {
@@ -31,13 +34,15 @@ export interface RequestContext {
  */
 export function handleConnection(socket: Socket, context: RequestContext) {
   const { feed } = context;
-  const socketID = `${socket.remoteAddress}:${socket.remotePort}`;
+  let feedClient: WebSocketClient | null = null;
   let requestBuffer: Buffer = Buffer.alloc(0);
   let currentRequest = "";
 
   async function handleData(chunk: Buffer) {
-    // if its a websocket connection, ignore the http parser
-    if (feed.hasSubscriber(socketID)) return;
+    if (feedClient) {
+      feedClient.receive(chunk);
+      return;
+    }
 
     requestBuffer = Buffer.concat([requestBuffer, chunk]);
 
@@ -55,9 +60,23 @@ export function handleConnection(socket: Socket, context: RequestContext) {
         }
 
         if (isWebSocketUpgrade(request.headers)) {
-          logger.info("WebSocket Handshake successful");
-          handleWebSocketHandshake(socket, request);
-          feed.subscribe(socketID, socket);
+          if (request.path.split("?")[0] !== FEED_PATH) {
+            sendResponse(socket, 400, "Bad Request", { error: `WebSocket upgrades are only accepted on ${FEED_PATH}` });
+            return;
+          }
+
+          if (feed.isFull()) {
+            sendResponse(socket, 503, "Service Unavailable", { error: "Too many dashboards are connected" });
+            return;
+          }
+
+          if (!handleWebSocketHandshake(socket, request)) return;
+
+          logger.info("WebSocket handshake successful");
+          feedClient = new WebSocketClient(socket);
+          feed.subscribe(feedClient);
+          // The parser puts any bytes after the request headers in the body, so these are frames the client sent straight away.
+          feedClient.receive(request.body);
           return;
         }
 
@@ -148,6 +167,6 @@ export function handleConnection(socket: Socket, context: RequestContext) {
   });
 
   socket.on("close", () => {
-    feed.unsubscribe(socketID);
+    if (feedClient) feed.unsubscribe(feedClient);
   });
 }

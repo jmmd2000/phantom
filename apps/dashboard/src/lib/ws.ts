@@ -13,7 +13,7 @@ let socket: WebSocket | null = null;
 export function connectToServer() {
   if (socket) return;
 
-  socket = new WebSocket("ws://localhost:3001");
+  socket = new WebSocket("ws://localhost:3001/_ws");
 
   socket.onopen = () => {
     isConnected.set(true);

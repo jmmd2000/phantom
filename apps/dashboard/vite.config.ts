@@ -19,4 +19,11 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    // The dashboard calls the server it was loaded from. In development, forward those calls to Phantom on its default port.
+    proxy: {
+      "/_admin": "http://localhost:3001",
+      "/_ws": { target: "ws://localhost:3001", ws: true },
+    },
+  },
 });

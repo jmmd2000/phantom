@@ -13,6 +13,7 @@
 - A failed WebSocket handshake gets a 400 and never joins the live feed.
 - The server answers a close frame from the dashboard and ends the connection cleanly.
 - A dashboard that stops reading the live feed is dropped, so it can't grow the server's memory.
+- The dashboard works on any port and over HTTPS.
 
 ## [0.3.1] - 2026-10-29
 

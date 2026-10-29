@@ -20,7 +20,7 @@
     connectToServer();
 
     try {
-      const res = await fetch("http://localhost:3001/_admin/version");
+      const res = await fetch("/_admin/version");
       const data = await res.json();
       serverVersion = data.version;
     } catch {

@@ -13,7 +13,8 @@ let socket: WebSocket | null = null;
 export function connectToServer() {
   if (socket) return;
 
-  socket = new WebSocket("ws://localhost:3001/_ws");
+  const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+  socket = new WebSocket(`${protocol}//${location.host}/_ws`);
 
   socket.onopen = () => {
     isConnected.set(true);

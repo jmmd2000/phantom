@@ -1,6 +1,6 @@
 import type { RouteConfig } from "@phantom/shared";
 
-const API_URL = "http://localhost:3001/_admin/routes";
+const API_URL = "/_admin/routes";
 
 const routeDefaults = (route: Partial<RouteConfig>): RouteConfig => ({
   path: route.path ?? "/",

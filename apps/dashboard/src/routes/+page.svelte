@@ -33,12 +33,12 @@
   }
 
   async function clearLogs() {
-    await fetch("http://localhost:3001/_admin/clear", { method: "POST" });
+    await fetch("/_admin/clear", { method: "POST" });
     requestLog.set([]);
   }
 
   async function copyToClipboard(path: string) {
-    const fullUrl = `http://localhost:3001${path}`;
+    const fullUrl = `${location.origin}${path}`;
     await navigator.clipboard.writeText(fullUrl);
   }
 </script>
@@ -77,7 +77,7 @@
   <div class="empty">
     <p>{searchTerm ? "No requests match your search." : "No activity yet..."}</p>
     {#if !searchTerm}
-      <code>curl http://localhost:3001/health</code>
+      <code>curl {location.origin}/health</code>
     {/if}
   </div>
 {:else}

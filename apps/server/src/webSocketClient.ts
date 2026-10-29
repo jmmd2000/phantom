@@ -1,7 +1,9 @@
 import type { Socket } from "node:net";
 import { decodeWsFrame, encodeWsFrame, OPCODE_CLOSE } from "./ws.ts";
+import { logger } from "./logger.ts";
 
 const MAX_INCOMING_BYTES = 64 * 1024;
+const MAX_BACKLOG_BYTES = 4 * 1024 * 1024;
 
 /**
  * One WebSocket connection after the handshake. It sends frames to the client and reads the frames the client sends.
@@ -15,8 +17,19 @@ export class WebSocketClient {
     this.socket = socket;
   }
 
+  /**
+   * Sends a frame. Destroys the connection instead when too many bytes are still waiting to reach the client.
+   */
   send(frame: Buffer) {
     if (!this.socket.writable) return;
+
+    // writableLength counts the bytes the socket hasn't sent yet. They build up when a client stops reading.
+    if (this.socket.writableLength > MAX_BACKLOG_BYTES) {
+      logger.warn("Dropped a dashboard that fell behind the live feed");
+      this.socket.destroy();
+      return;
+    }
+
     this.socket.write(frame);
   }
 

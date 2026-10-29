@@ -65,6 +65,11 @@ export function handleConnection(socket: Socket, context: RequestContext) {
             return;
           }
 
+          if (feed.isFull()) {
+            sendResponse(socket, 503, "Service Unavailable", { error: "Too many dashboards are connected" });
+            return;
+          }
+
           if (!handleWebSocketHandshake(socket, request)) return;
 
           logger.info("WebSocket handshake successful");

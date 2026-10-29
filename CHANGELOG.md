@@ -5,11 +5,14 @@
 ### Changed
 
 - The live feed is on `/_ws`. WebSocket upgrades on other paths get a 400.
+- At most 10 dashboards can connect at once. Extra connections get a 503.
+- The request history sent to a new dashboard is limited to 1 MB.
 
 ### Fixed
 
 - A failed WebSocket handshake gets a 400 and never joins the live feed.
 - The server answers a close frame from the dashboard and ends the connection cleanly.
+- A dashboard that stops reading the live feed is dropped, so it can't grow the server's memory.
 
 ## [0.3.1] - 2026-10-29
 

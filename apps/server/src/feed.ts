@@ -3,7 +3,26 @@ import type { WebSocketClient } from "./webSocketClient.ts";
 import { encodeWsFrame } from "./ws.ts";
 
 const HISTORY_LIMIT = 100;
+const MAX_HISTORY_BYTES = 1024 * 1024;
+const MAX_SUBSCRIBERS = 10;
 const HEARTBEAT_INTERVAL = 30000;
+
+/**
+ * Returns the newest entries whose JSON fits in maxBytes, oldest first.
+ * Returns an empty list when the newest entry alone is bigger than maxBytes.
+ */
+export function trimHistory(history: RequestLogEntry[], maxBytes: number): RequestLogEntry[] {
+  const kept: RequestLogEntry[] = [];
+  let totalBytes = 0;
+
+  for (const entry of [...history].reverse()) {
+    totalBytes += Buffer.byteLength(JSON.stringify(entry));
+    if (totalBytes > maxBytes) break;
+    kept.unshift(entry);
+  }
+
+  return kept;
+}
 
 /**
  * The live feed to the dashboard: the WebSocket subscribers, the recent request history and a heartbeat.
@@ -21,14 +40,19 @@ export class Feed {
     }, HEARTBEAT_INTERVAL);
   }
 
+  isFull() {
+    return this.subscribers.size >= MAX_SUBSCRIBERS;
+  }
+
   /**
-   * Adds a subscriber and sends it the request history.
+   * Adds a subscriber and sends it the request history, cut down to a size limit.
    */
   subscribe(client: WebSocketClient) {
     this.subscribers.add(client);
 
-    if (this.history.length > 0) {
-      client.send(encodeWsFrame(JSON.stringify({ type: "HISTORY", data: this.history })));
+    const history = trimHistory(this.history, MAX_HISTORY_BYTES);
+    if (history.length > 0) {
+      client.send(encodeWsFrame(JSON.stringify({ type: "HISTORY", data: history })));
     }
   }
 

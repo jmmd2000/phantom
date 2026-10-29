@@ -107,4 +107,24 @@ describe("Live feed", () => {
     const closeReply = encodeWsFrame(normalClosure, OPCODE_CLOSE);
     expect((await received).subarray(-closeReply.length)).toEqual(closeReply);
   });
+
+  it("refuses a dashboard once 10 are connected", async () => {
+    // A separate server, so sockets from the other tests can't fill it first.
+    const fullServer = await startTestServer({ routesFilePath: path.join(folder, "full-routes.json") });
+    const sockets: net.Socket[] = [];
+
+    for (let i = 0; i < 10; i++) {
+      const { socket, response } = await sendUpgrade(fullServer.port, "/_ws", HANDSHAKE_HEADERS);
+      expect(response).toMatch(/^HTTP\/1\.1 101/);
+      sockets.push(socket);
+    }
+
+    const { socket: extraSocket, response } = await sendUpgrade(fullServer.port, "/_ws", HANDSHAKE_HEADERS);
+    expect(response).toMatch(/^HTTP\/1\.1 503/);
+
+    for (const socket of [...sockets, extraSocket]) {
+      socket.destroy();
+    }
+    await fullServer.stop();
+  });
 });

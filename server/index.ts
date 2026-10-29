@@ -7,7 +7,7 @@ import { sendCorsPreflightResponse, sendResponse } from "./responder.ts";
 import { handleRouting } from "./router.ts";
 import { watchConfig, setConfigPath, reloadRoutes, writeRoutes } from "./config.ts";
 import { broadcast, encodeWsFrame, handleWebSocketHandshake, startHeartbeat } from "./ws.ts";
-import { parseCLI } from "./cli.ts";
+import { parseCLI, DEFAULT_HOST } from "./cli.ts";
 import { handleStaticFile } from "./static.ts";
 import { readFileSync } from "node:fs";
 import { logger } from "./logger.ts";
@@ -232,22 +232,30 @@ watchConfig(() => {
 
 startHeartbeat(wsClients);
 
-export function startServer(port: number, willShowBanner: boolean): Promise<net.Server> {
+export function startServer(port: number, willShowBanner: boolean, host = DEFAULT_HOST): Promise<net.Server> {
   return new Promise(resolve => {
-    server.listen(port, () => {
-      if (willShowBanner) showBanner(port);
+    server.listen(port, host, () => {
+      if (willShowBanner) showBanner(port, host);
       resolve(server);
     });
   });
 }
 
 if (import.meta.url === `file://${process.argv[1]}` || process.env.NODE_ENV !== "test") {
-  await startServer(Number(options.port), true);
+  await startServer(Number(options.port), true, options.host);
   // The banner clears the screen, so load the routes after it to keep their log line visible.
   reloadRoutes();
 }
 
-function showBanner(port: number) {
+/**
+ * Returns the host for the dashboard link. A browser can't open 0.0.0.0 or ::, which mean every interface.
+ */
+function dashboardHost(host: string) {
+  const isThisMachine = host === "127.0.0.1" || host === "0.0.0.0" || host === "::";
+  return isThisMachine ? "localhost" : host;
+}
+
+function showBanner(port: number, host: string) {
   console.clear();
 
   const art = [
@@ -266,9 +274,9 @@ function showBanner(port: number) {
   const brand = hexBg(COLOURS.PURPLE, "PHANTOM");
   const details = [
     `${brand}  ${styleText("white", `v${VERSION}`)}`,
-    `port:      ${hex(COLOURS.PURPLE, port.toString())}`,
+    `address:   ${hex(COLOURS.PURPLE, `${host}:${port}`)}`,
     `config:    ${hex(COLOURS.PURPLE, options.config)}`,
-    `dashboard: ${hex(COLOURS.PURPLE, `http://localhost:${port}/_dashboard/`)}`,
+    `dashboard: ${hex(COLOURS.PURPLE, `http://${dashboardHost(host)}:${port}/_dashboard/`)}`,
     styleText("dim", "─".repeat(44)),
   ];
 

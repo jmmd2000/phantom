@@ -2,9 +2,15 @@ import { cac } from "cac";
 
 const cli = cac("phantom");
 
+/** The address the server listens on when `--host` isn't given. Only this machine can connect to it. */
+export const DEFAULT_HOST = "127.0.0.1";
+
 export function parseCLI(version: string) {
   cli
     .option("--port <port>", "Port to run the server on", { default: 3001 })
+    .option("--host <host>", "Address to listen on, such as 0.0.0.0 for every network interface", {
+      default: DEFAULT_HOST,
+    })
     .option("--config <path>", "Path to the routes JSON file", {
       default: "routes.json",
     })
@@ -26,6 +32,7 @@ export function parseCLI(version: string) {
   return {
     command: cli.matchedCommandName,
     port: Number(parsed.options.port),
+    host: String(parsed.options.host),
     config: String(parsed.options.config),
     delay: parsed.options.delay !== undefined ? Number(parsed.options.delay) : null,
     errorRate: parsed.options.errorRate !== undefined ? Number(parsed.options.errorRate) : null,

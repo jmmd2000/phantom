@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.2.7] - 2026-10-29
+
+### Fixed
+
+- Routes match on method as well as path. A route with no method answers GET.
+
 ## [0.2.6] - 2026-10-28
 
 ### Fixed
@@ -70,7 +76,8 @@
 - A dashboard with a live request feed, search and filters, request and response details, log export and route settings.
 - CLI flags for the port, the routes file, and a global delay and error rate.
 
-[Unreleased]: https://github.com/jmmd2000/phantom/compare/v0.2.6...HEAD
+[Unreleased]: https://github.com/jmmd2000/phantom/compare/v0.2.7...HEAD
+[0.2.7]: https://github.com/jmmd2000/phantom/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/jmmd2000/phantom/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/jmmd2000/phantom/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/jmmd2000/phantom/compare/v0.2.1...v0.2.4

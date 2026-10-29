@@ -39,6 +39,7 @@ export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]
 
   for (const route of routes) {
     if (route.enabled === false) continue;
+    if (!methodMatches(route.method, request.method)) continue;
 
     const params = matchPath(route.path, request.path);
     if (params) {
@@ -60,6 +61,13 @@ export function handleRouting(request: MockRequest, customRoutes?: RouteConfig[]
     body: { error: `Route ${request.path} not found` },
     params: {},
   };
+}
+
+/**
+ * Compares HTTP methods, ignoring case. A route with no method answers GET.
+ */
+function methodMatches(routeMethod: string | undefined, requestMethod: string) {
+  return (routeMethod ?? "GET").toUpperCase() === requestMethod.toUpperCase();
 }
 
 /**

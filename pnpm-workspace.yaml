@@ -1,6 +1,6 @@
 packages:
-  - "server"
-  - "dashboard"
+  - "apps/*"
+  - "packages/*"
 saveExact: true
 engineStrict: true
 allowBuilds:

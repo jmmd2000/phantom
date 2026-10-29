@@ -15,11 +15,11 @@ build
 Thumbs.db
 
 # Config
-server/routes.json
+apps/server/routes.json
 
 # Copied in before publishing
-server/README.md
-server/LICENSE
+apps/server/README.md
+apps/server/LICENSE
 
 # Env
 .env

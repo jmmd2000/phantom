@@ -12,7 +12,7 @@
   "scripts": {
     "prepare": "husky",
     "dev": "pnpm --recursive --parallel dev",
-    "build": "pnpm --filter ./dashboard build && pnpm --filter ./server build",
+    "build": "pnpm --filter ./apps/dashboard build && pnpm --filter ./apps/server build",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check . && eslint .",

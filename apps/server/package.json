@@ -23,6 +23,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@phantom/shared": "workspace:*",
     "@types/node": "26.6.5",
     "typescript": "6.0.3"
   },

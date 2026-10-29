@@ -1,22 +1,12 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { styleText } from "node:util";
+import type { RouteConfig } from "@phantom/shared";
 
 let CONFIG_PATH = path.join(process.cwd(), "routes.json");
 
 export function setConfigPath(newPath: string) {
   CONFIG_PATH = path.isAbsolute(newPath) ? newPath : path.join(process.cwd(), newPath);
-}
-
-export interface RouteConfig {
-  path: string;
-  method: string;
-  status: number;
-  body: unknown;
-  enabled: boolean;
-  delay: number;
-  errorRate: number;
-  headers: Record<string, string>;
 }
 
 let activeRoutes: RouteConfig[] = [];

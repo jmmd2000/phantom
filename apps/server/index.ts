@@ -2,6 +2,7 @@
 import * as net from "node:net";
 import { styleText } from "node:util";
 import crypto from "node:crypto";
+import type { RequestLogEntry } from "@phantom/shared";
 import { isRequestComplete, isWebSocketUpgrade, parseRequest } from "./parser.ts";
 import { sendCorsPreflightResponse, sendResponse } from "./responder.ts";
 import { handleRouting } from "./router.ts";
@@ -64,18 +65,6 @@ const socketManager = {
     }
   },
 };
-
-interface RequestLogEntry {
-  id: string;
-  method: string;
-  path: string;
-  timestamp: number;
-  headers: Record<string, string>;
-  body: string;
-  status: number;
-  duration: number;
-  responseBody: unknown;
-}
 
 export const wsClients = new Map<string, net.Socket>();
 const requestHistory: RequestLogEntry[] = [];

@@ -1,7 +1,8 @@
 <script lang="ts">
   import { tick } from "svelte";
   import { Settings } from "@lucide/svelte";
-  import { mockRoutes, saveRoutes, type RouteConfig } from "#lib/routes.svelte.ts";
+  import type { RouteConfig } from "@phantom/shared";
+  import { mockRoutes, saveRoutes } from "#lib/routes.svelte.ts";
   import Toggle from "../ui/Toggle.svelte";
   import Badge from "../ui/Badge.svelte";
 

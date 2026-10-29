@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { handleRouting } from "../router.ts";
 import type { MockRequest } from "../parser.ts";
-import type { RouteConfig } from "../config.ts";
+import type { RouteConfig } from "@phantom/shared";
 
 describe("handleRouting engine", () => {
   it("matches a dynamic path and returns params", () => {

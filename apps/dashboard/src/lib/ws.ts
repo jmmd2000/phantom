@@ -1,17 +1,6 @@
 import { writable } from "svelte/store";
+import type { RequestLogEntry } from "@phantom/shared";
 import { fetchMockRoutes } from "./routes.svelte";
-
-export interface RequestLogEntry {
-  id: string;
-  method: string;
-  path: string;
-  timestamp: number;
-  headers: Record<string, string>;
-  body: string;
-  status: number;
-  duration: number;
-  responseBody: unknown;
-}
 
 export const requestLog = writable<RequestLogEntry[]>([]);
 export const isConnected = writable(false);

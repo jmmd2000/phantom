@@ -48,6 +48,9 @@ importers:
         specifier: 1.62.0
         version: 1.62.0(svelte@5.57.3(@typescript-eslint/types@8.72.1))
     devDependencies:
+      '@phantom/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@sveltejs/adapter-static':
         specifier: 4.0.0
         version: 4.0.0(@sveltejs/kit@3.1.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.3)(yaml@2.9.1)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.27.3)(yaml@2.9.1)))
@@ -76,9 +79,18 @@ importers:
         specifier: 7.1.0
         version: 7.1.0
     devDependencies:
+      '@phantom/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@types/node':
         specifier: 26.6.5
         version: 26.6.5
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+
+  packages/shared:
+    devDependencies:
       typescript:
         specifier: 6.0.3
         version: 6.0.3

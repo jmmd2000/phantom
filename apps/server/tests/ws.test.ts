@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { encodeWsFrame } from "../ws.ts";
+import { encodeWsFrame } from "../src/ws.ts";
 
 describe("encodeWsFrame", () => {
   it("returns a 2-byte header for small payloads", () => {

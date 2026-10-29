@@ -6,7 +6,7 @@ import * as path from "node:path";
 
 const TEST_PORT = 3998;
 const baseURL = `http://localhost:${TEST_PORT}`;
-const serverEntry = path.resolve(import.meta.dirname, "../index.ts");
+const serverEntry = path.resolve(import.meta.dirname, "../src/index.ts");
 
 /**
  * Checks the condition every 50ms until it is true. Throws if it is still false after the timeout.

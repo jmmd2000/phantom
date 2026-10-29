@@ -2,7 +2,7 @@ import path from "node:path";
 import { configDefaults, defineConfig } from "vitest/config";
 
 const serverRoot = path.resolve(import.meta.dirname, "apps/server");
-const integrationTests = "__tests__/**/*.integration.test.ts";
+const integrationTests = "tests/**/*.integration.test.ts";
 
 const serverProject = { root: serverRoot };
 
@@ -20,7 +20,7 @@ export default defineConfig({
         test: {
           ...serverTest,
           name: "server-unit",
-          include: ["__tests__/**/*.test.ts"],
+          include: ["tests/**/*.test.ts"],
           exclude: [...configDefaults.exclude, integrationTests],
         },
       },

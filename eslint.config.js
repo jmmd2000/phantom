@@ -56,8 +56,8 @@ export default defineConfig(
     },
   },
   {
-    // The server is a terminal app, so writing to the console is its job.
-    files: ["apps/server/**/*.ts"],
+    // The logger is the one place that writes to the terminal.
+    files: ["apps/server/src/logger.ts"],
     rules: {
       "no-console": "off",
     },

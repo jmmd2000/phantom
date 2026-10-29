@@ -15,7 +15,7 @@ const MIME_TYPES: Record<string, string> = {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /** The published build first, then the repo build during development. */
-const DASHBOARD_FOLDERS = [path.join(__dirname, "dashboard-ui"), path.join(__dirname, "../dashboard/build")];
+const DASHBOARD_FOLDERS = [path.join(__dirname, "dashboard-ui"), path.join(__dirname, "../../dashboard/build")];
 
 /**
  * Decodes a request path and joins it onto the folder.

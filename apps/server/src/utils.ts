@@ -32,7 +32,7 @@ export const hexBg = (code: string, text: string) => {
 /**
  * Pads a string equally on both sides to reach a target width.
  */
-export const centerText = (text: string, width: number) => {
+export const centreText = (text: string, width: number) => {
   const label = text.toUpperCase();
   const padding = Math.max(0, width - label.length);
   const leftPad = Math.floor(padding / 2);

@@ -6,6 +6,11 @@
 
 - The README has a screenshot and a quick start.
 
+### Fixed
+
+- `--quiet` hides everything except errors, including the startup banner and routes file messages.
+- The startup banner only clears the screen when output is a terminal, so logs such as Docker's keep their history.
+
 ## [0.3.0] - 2026-10-29
 
 ### Added

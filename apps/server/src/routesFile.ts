@@ -1,8 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { styleText } from "node:util";
 import type { RouteConfig } from "@phantom/shared";
 import type { RouteStore } from "./routeStore.ts";
+import { logger } from "./logger.ts";
 
 /**
  * Reads, writes and watches a routes file, and keeps the route store in step with it.
@@ -26,16 +26,16 @@ export class RoutesFile {
    */
   load() {
     if (!fs.existsSync(this.filePath)) {
-      console.log(styleText("yellow", `[Config] No routes file found at ${this.filePath}. Run "phantom init" to create one.`));
+      logger.warn(`[Config] No routes file found at ${this.filePath}. Run "phantom init" to create one.`);
       return;
     }
 
     try {
       const routes: RouteConfig[] = JSON.parse(fs.readFileSync(this.filePath, "utf-8"));
       this.store.setRoutes(routes);
-      console.log(styleText("blue", `[Config] Successfully reloaded ${routes.length} routes from ${path.basename(this.filePath)}`));
+      logger.config(`Successfully reloaded ${routes.length} routes from ${path.basename(this.filePath)}`);
     } catch {
-      console.error(styleText("red", `[Config] Error reloading ${this.filePath}. Keeping previous version.`));
+      logger.error(`Couldn't load ${this.filePath}. Keeping the previous routes.`);
     }
   }
 
@@ -44,7 +44,7 @@ export class RoutesFile {
    */
   write(routes: RouteConfig[]) {
     fs.writeFileSync(this.filePath, JSON.stringify(routes, null, 2), "utf-8");
-    console.log(styleText("blue", `[Config] Wrote ${routes.length} routes to ${path.basename(this.filePath)}`));
+    logger.config(`Wrote ${routes.length} routes to ${path.basename(this.filePath)}`);
     this.store.setRoutes(routes);
   }
 

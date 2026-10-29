@@ -65,8 +65,6 @@ function dashboardHost(host: string) {
 }
 
 function showBanner(port: number, host: string) {
-  console.clear();
-
   const art = [
     "      ████████      ",
     "    ████████████    ",
@@ -89,13 +87,9 @@ function showBanner(port: number, host: string) {
     styleText("dim", "─".repeat(44)),
   ];
 
-  console.log("");
-  art.forEach((line, i) => {
-    // start at line 3 of the ASCII art
-    const info = details[i - 3] || "";
-    console.log(`${hex(COLOURS.PURPLE, line)}  ${info}`);
-  });
-  console.log("");
+  // The details start beside line 3 of the art.
+  const artLines = art.map((line, i) => `${hex(COLOURS.PURPLE, line)}  ${details[i - 3] || ""}`);
+  logger.banner(["", ...artLines, ""]);
 }
 
 function shutdown() {

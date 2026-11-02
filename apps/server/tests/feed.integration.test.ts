@@ -89,6 +89,12 @@ describe("Live feed", () => {
     socket.destroy();
   });
 
+  it("refuses an upgrade from another origin", async () => {
+    const { socket, response } = await sendUpgrade(testServer.port, "/_ws", { ...HANDSHAKE_HEADERS, Origin: "http://evil.example" });
+    expect(response).toMatch(/^HTTP\/1\.1 403/);
+    socket.destroy();
+  });
+
   it("refuses a handshake without a key", async () => {
     const headersWithoutKey = { Upgrade: "websocket", Connection: "Upgrade", "Sec-WebSocket-Version": "13" };
     const { socket, response } = await sendUpgrade(testServer.port, "/_ws", headersWithoutKey);

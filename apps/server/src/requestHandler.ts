@@ -7,6 +7,7 @@ import { handleRouting } from "./router.ts";
 import { handleAdmin } from "./admin.ts";
 import { handleWebSocketHandshake } from "./ws.ts";
 import { handleStaticFile } from "./static.ts";
+import { isSameOrigin } from "./origin.ts";
 import { WebSocketClient } from "./webSocketClient.ts";
 import { logger } from "./logger.ts";
 import type { Feed } from "./feed.ts";
@@ -52,6 +53,15 @@ export function handleConnection(socket: Socket, context: RequestContext) {
       if (request) {
         currentRequest = `${request.method} ${request.path}`;
 
+        const isAdmin = request.path.startsWith("/_admin/");
+        const isFeed = request.path.split("?")[0] === FEED_PATH;
+
+        if ((isAdmin || isFeed) && !isSameOrigin(request.headers)) {
+          logger.warn(`Refused ${currentRequest} from ${request.headers["origin"]}`);
+          sendResponse(socket, 403, "Forbidden", { error: "Only the Phantom dashboard can use this endpoint" });
+          return;
+        }
+
         if (request.method === "OPTIONS") {
           logger.info(`CORS Preflight ${request.path}`);
           sendCorsPreflightResponse(socket);
@@ -60,7 +70,7 @@ export function handleConnection(socket: Socket, context: RequestContext) {
         }
 
         if (isWebSocketUpgrade(request.headers)) {
-          if (request.path.split("?")[0] !== FEED_PATH) {
+          if (!isFeed) {
             sendResponse(socket, 400, "Bad Request", { error: `WebSocket upgrades are only accepted on ${FEED_PATH}` });
             return;
           }
@@ -80,7 +90,6 @@ export function handleConnection(socket: Socket, context: RequestContext) {
           return;
         }
 
-        // handle dashboard static files immediately
         if (request.path.startsWith("/_dashboard") || request.path.startsWith("/_app") || request.path === "/phantom.svg") {
           const staticFile = await handleStaticFile(request.path);
           if (staticFile) {
@@ -90,7 +99,6 @@ export function handleConnection(socket: Socket, context: RequestContext) {
           }
         }
 
-        // redirect root to dashboard if no root mock exists
         if (request.path === "/") {
           const rootResponse = handleRouting(request, context.store.getRoutes());
           if (rootResponse.status === 404) {
@@ -103,8 +111,6 @@ export function handleConnection(socket: Socket, context: RequestContext) {
         const start = Date.now();
         const response = handleAdmin(request, context) ?? handleRouting(request, context.store.getRoutes());
         request.params = response.params;
-
-        const isAdmin = request.path.startsWith("/_admin/");
 
         if (isAdmin && request.path === "/_admin/clear" && request.method === "POST") {
           feed.clearHistory();

@@ -14,6 +14,7 @@
 - The server answers a close frame from the dashboard and ends the connection cleanly.
 - A dashboard that stops reading the live feed is dropped, so it can't grow the server's memory.
 - The dashboard works on any port and over HTTPS.
+- Other websites open in the browser can't read the live feed or call the admin API.
 
 ## [0.3.1] - 2026-10-29
 
